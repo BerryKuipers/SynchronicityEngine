@@ -3,6 +3,9 @@ import { Action, ActionContext, ResonanceLevel, ResonanceVector } from './types.
 export const RESONANCE_MAX = 100;
 export const RESONANCE_MIN = 0;
 
+const VIBRANT_THRESHOLD = 34;
+const CHAOTIC_THRESHOLD = 67;
+
 export const normalizeResonance = (vector: ResonanceVector): ResonanceVector => {
   return {
     focus: clamp(vector.focus),
@@ -33,10 +36,10 @@ export const assertValidAction = (action: Action): void => {
 export const calculateResonanceLevel = (vector: ResonanceVector): ResonanceLevel => {
   const normalized = normalizeResonance(vector);
   const average = (normalized.focus + normalized.intuition + normalized.harmony) / 3;
-  if (average < 34) {
+  if (average < VIBRANT_THRESHOLD) {
     return 'calm';
   }
-  if (average < 67) {
+  if (average < CHAOTIC_THRESHOLD) {
     return 'vibrant';
   }
   return 'chaotic';
