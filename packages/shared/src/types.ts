@@ -42,3 +42,28 @@ export interface NarrativeEvent {
   narrative: string;
   resonanceLevel: ResonanceLevel;
 }
+
+// V1 Contracts for Hexagonal Architecture
+
+export type LevelId = 'physical' | 'higher' | 'soul' | 'oversoul';
+
+export type VibrationBand = {
+  min: number;
+  max: number;
+  current: number;
+  thresholds: number[];
+};
+
+export type LayerSnapshot = {
+  id: LevelId;
+  vibration: VibrationBand;
+  alignment: number;
+  sublevels: Record<string, number>;
+};
+
+export type EngineSnapshotV1 = {
+  version: 1;
+  layers: LayerSnapshot[];
+  resonanceScore: number;
+  timelineHints: string[];
+};

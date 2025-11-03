@@ -18,3 +18,4 @@ export const createDefaultEngine = (): SynchronicityEngine => {
 
 export { SynchronicityEngine, introductionScene, convergenceScene };
 export * from './types.js';
+export * from './interfaces/Ports.js';
