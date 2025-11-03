@@ -1,0 +1,32 @@
+name: 'Feature request'
+description: 'Suggest an enhancement for SynchronicityEngine'
+title: '[Feature] '
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: 'Describe the desired capability clearly.'
+  - type: input
+    id: summary
+    attributes:
+      label: 'Summary'
+      placeholder: 'Describe the feature in one sentence'
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: 'Motivation'
+      description: 'Explain why this capability is valuable'
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 'Proposed solution'
+      description: 'Outline the desired changes or behaviours'
+  - type: textarea
+    id: notes
+    attributes:
+      label: 'Additional context'
