@@ -19,7 +19,7 @@ const App: React.FC = () => {
       const data = await fetchSnapshot(sessionId);
       setSnapshot(data);
     } catch (err) {
-      setError((err as Error).message);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {
       setLoading(false);
     }
