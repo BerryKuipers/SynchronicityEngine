@@ -1,5 +1,4 @@
 # Consciousness-Simulation Game Engine Blueprint  
-(Recovered notes reconstruction)
 
 ## Core Premise
 Build a software system + game engine that simulates the metaphysical hierarchy of consciousness using an algorithmic model inspired by Bashar concepts:
@@ -61,6 +60,11 @@ System measures alignment / vibration score.
 - Level 4: Oversoul mode = meta-simulation awareness
 
 "Leveling up" = softening focus back outward (fractal expansion)
+Each consciousness layer operates within its own vibrational spectrum. Progress within a layer expands awareness, stabilizes perception, and increases synchronicity. When the user sustains resonance at the upper range of a layer’s frequency band, they transition (level up) to the next layer of consciousness.
+
+And for sub-levels:
+
+Each layer includes internal stages that represent refinement of perception, belief transformation, emotional coherence, and the ability to respond to synchronicity and intuition.
 
 ### 6. AI Minds Per Layer
 Each consciousness tier has its own AI agent with:
