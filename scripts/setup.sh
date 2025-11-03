@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-# TODO: add build and run commands for SynchronicityEngine
+set -euo pipefail
+
+npm install
+npm run build

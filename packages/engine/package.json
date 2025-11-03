@@ -1,0 +1,24 @@
+{
+  "name": "@synchronicity/engine",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -w -p tsconfig.json",
+    "lint": "eslint 'src/**/*.ts'",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@synchronicity/shared": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7"
+  }
+}

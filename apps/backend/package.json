@@ -1,0 +1,23 @@
+{
+  "name": "@synchronicity/backend",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "lint": "eslint 'src/**/*.ts'",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.4.2",
+    "@synchronicity/engine": "0.1.0",
+    "@synchronicity/shared": "0.1.0",
+    "fastify": "^4.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "tsx": "^4.7.1"
+  }
+}
