@@ -6,6 +6,7 @@ import {
   EngineQueryPort,
 } from '@synchronicity/engine';
 import { EngineSnapshotV1 } from '@synchronicity/shared';
+import storage from './routes/storage';
 
 const server = Fastify({ logger: true });
 
@@ -13,6 +14,8 @@ const server = Fastify({ logger: true });
 const engine: EngineCommandPort & EngineQueryPort = createDefaultEngine();
 
 await server.register(cors, { origin: true });
+
+server.register(storage);
 
 server.get('/health', () => {
   return { status: 'ok' };
