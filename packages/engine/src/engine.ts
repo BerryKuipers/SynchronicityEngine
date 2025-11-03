@@ -1,58 +1,111 @@
 import {
   Action,
-  ActionContext,
   adjustResonance,
   assertValidAction,
   calculateResonanceLevel,
   normalizeResonance,
+  EngineSnapshotV1,
+  ActionContext,
   resolveActionEnergy,
 } from '@synchronicity/shared';
-import {
-  EngineActionResult,
-  EngineConfig,
-  EngineSnapshot,
-  SceneDefinition,
-  SceneDescription,
-  SceneContext,
-  SessionState,
-} from './types.js';
+import { EngineConfig, SceneDefinition, SceneContext, SessionState } from './types.js';
 import { SceneRegistry } from './scene-registry.js';
 import { SessionManager } from './session-manager.js';
+import {
+  EngineCommandPort,
+  EngineEvent,
+  EngineEventPort,
+  EngineQueryPort,
+} from './interfaces/Ports.js';
+import { EventEmitter } from 'events';
 
-export class SynchronicityEngine {
+export class SynchronicityEngine
+  implements EngineCommandPort, EngineQueryPort, EngineEventPort
+{
   private readonly registry = new SceneRegistry();
   private readonly sessions: SessionManager;
+  private readonly emitter = new EventEmitter();
 
   constructor(private readonly config: EngineConfig) {
     this.sessions = new SessionManager(config);
   }
 
+  // Port Implementations
+  async act(sessionId: string, intent: unknown): Promise<void> {
+    // For now, we'll assume the intent is a simple actionId string
+    const actionId = intent as string;
+    this.performAction(sessionId, actionId);
+    this.emitter.emit('event', {
+      type: 'BeliefUpdated',
+      payload: { key: 'some_belief' },
+    });
+  }
+
+  async snapshot(sessionId: string): Promise<EngineSnapshotV1> {
+    const state = this.sessions.ensure(sessionId);
+    const scene = this.registry.get(state.sceneId);
+    const description = scene.onDescribe({ state });
+
+    return {
+      version: 1,
+      layers: [
+        {
+          id: 'physical',
+          vibration: {
+            min: 0,
+            max: 100,
+            current: state.energy,
+            thresholds: [25, 50, 75],
+          },
+          alignment: normalizeResonance(state.resonance).harmony,
+          sublevels: {},
+        },
+        {
+          id: 'higher',
+          vibration: {
+            min: 0,
+            max: 100,
+            current: normalizeResonance(state.resonance).intuition,
+            thresholds: [50, 75],
+          },
+          alignment: normalizeResonance(state.resonance).focus,
+          sublevels: {},
+        },
+      ],
+      resonanceScore: calculateResonanceLevel(state.resonance),
+      timelineHints: description.summary.split('.'),
+    };
+  }
+
+  subscribe(sessionId: string, handler: (e: EngineEvent) => void): () => void {
+    this.emitter.on('event', handler);
+    return () => {
+      this.emitter.off('event', handler);
+    };
+  }
+
+  // Public Methods
   registerScene(scene: SceneDefinition): void {
     this.registry.register(scene);
   }
 
-  describe(sessionId: string): EngineSnapshot {
-    const state = this.sessions.ensure(sessionId);
-    const scene = this.registry.get(state.sceneId);
-    const context: SceneContext = { state };
-    const description = scene.onDescribe(context);
-    description.actions.forEach(assertValidAction);
-    return this.buildSnapshot(scene, state, description);
-  }
-
-  performAction(sessionId: string, actionId: string): EngineActionResult {
+  // Private Methods
+  private performAction(sessionId: string, actionId: string) {
     const state = this.sessions.ensure(sessionId);
     const scene = this.registry.get(state.sceneId);
     const context: SceneContext = { state };
     const description = scene.onDescribe(context);
     description.actions.forEach(assertValidAction);
     const action = this.requireAction(description.actions, actionId);
+
     const actionContext: ActionContext = {
       availableEnergy: state.energy,
       resonance: state.resonance,
     };
     const remainingEnergy = resolveActionEnergy(actionContext, action.cost);
+
     const resolution = scene.onResolve(action.id, context);
+
     const nextEnergy = Math.max(0, remainingEnergy + (resolution.energyDelta ?? 0));
     const resonanceShift = resolution.resonanceShift ?? { focus: 0, intuition: 0, harmony: 0 };
     const nextResonance = adjustResonance(state.resonance, resonanceShift);
@@ -70,14 +123,6 @@ export class SynchronicityEngine {
       history: [...state.history, event],
     };
     this.sessions.set(sessionId, updatedState);
-    const snapshot = this.describe(sessionId);
-    return {
-      applied: true,
-      remainingEnergy: snapshot.energy,
-      resonance: snapshot.resonance,
-      narrative: resolution.narrative,
-      snapshot,
-    };
   }
 
   private requireAction(actions: Action[], actionId: string): Action {
@@ -86,19 +131,5 @@ export class SynchronicityEngine {
       throw new Error(`Action ${actionId} is not available in the current scene`);
     }
     return action;
-  }
-
-  private buildSnapshot(scene: SceneDefinition, state: SessionState, description: SceneDescription): EngineSnapshot {
-    const resonance = normalizeResonance(state.resonance);
-    return {
-      sceneId: state.sceneId,
-      title: scene.title,
-      summary: description.summary,
-      resonanceLevel: calculateResonanceLevel(resonance),
-      resonance,
-      availableActions: description.actions,
-      energy: state.energy,
-      history: state.history,
-    };
   }
 }

@@ -1,0 +1,18 @@
+{
+  "name": "@synchronicity/cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@synchronicity/engine": "0.1.0",
+    "@synchronicity/shared": "0.1.0",
+    "tsx": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "typescript": "^5.3.3"
+  }
+}
