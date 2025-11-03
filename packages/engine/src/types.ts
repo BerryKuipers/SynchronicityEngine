@@ -37,9 +37,3 @@ export interface EngineConfig {
   initialResonance: ResonanceVector;
   initialEnergy: number;
 }
-
-export interface EngineSnapshot extends SceneSnapshot {}
-
-export interface EngineActionResult extends ActionResolution {
-  snapshot: EngineSnapshot;
-}
