@@ -1,5 +1,5 @@
 export interface IPromptRegistry<K, V> {
-  load(key: K, version: V): { path: string; body: string };
+  load(key: K, version: V): Promise<{ path: string; body: string }>;
 }
 
 export interface IRenderer<TInput> {

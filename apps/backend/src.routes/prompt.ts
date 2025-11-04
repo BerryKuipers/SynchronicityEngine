@@ -54,7 +54,7 @@ export default async function (fastify: FastifyInstance) {
     '/assemble',
     { schema: { querystring: zodToJsonSchema(promptAssemblyInputSchema) } },
     async (request, reply) => {
-      const chatAssembly = await assembleChat(
+      const chatAssembly = assembleChat(
         request.query as PromptAssemblyInput
       );
       reply.send(chatAssembly);
@@ -65,7 +65,7 @@ export default async function (fastify: FastifyInstance) {
     '/generate',
     { schema: { body: zodToJsonSchema(promptAssemblyInputSchema) } },
     async (request, reply) => {
-      const chatAssembly = await assembleChat(
+      const chatAssembly = assembleChat(
         request.body as PromptAssemblyInput
       );
       let llmResponse;

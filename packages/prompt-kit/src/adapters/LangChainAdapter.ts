@@ -1,7 +1,6 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event';
-import { zodToJsonSchema } from 'zod-to-json-schema';
 
 export async function generate(
   system: string,
@@ -12,9 +11,7 @@ export async function generate(
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  const structuredLLM = llm.withStructuredOutput(
-    zodToJsonSchema(EngineEventPayloadSchema)
-  );
+  const structuredLLM = llm.withStructuredOutput(EngineEventPayloadSchema);
 
   const response = await structuredLLM.invoke([
     new SystemMessage(system),

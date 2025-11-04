@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import { promises as fs } from 'fs';
 import * as path from 'path';
 import { IPromptRegistry } from './contracts/PromptContracts';
 import { Layer } from './types';
@@ -12,10 +12,10 @@ export class LawRegistry
     this.basePath = basePath;
   }
 
-  public load(
+  public async load(
     key: { layer: Layer },
     version: { version: string }
-  ): { path: string; body: string } {
+  ): Promise<{ path: string; body: string }> {
     const filePath = path.join(
       this.basePath,
       'layers',
@@ -24,7 +24,7 @@ export class LawRegistry
     );
 
     try {
-      const body = fs.readFileSync(filePath, 'utf-8');
+      const body = await fs.readFile(filePath, 'utf-8');
       return { path: filePath, body };
     } catch (error) {
       throw new Error(`Could not load law file: ${filePath}`);

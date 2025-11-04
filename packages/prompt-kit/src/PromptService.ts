@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { LawRegistry } from './LawRegistry';
 import { PersonaRegistry } from './PersonaRegistry';
 import { BeliefRenderer } from './render/BeliefRenderer';
@@ -7,16 +8,24 @@ import { renderGuardrails } from './render/GuardrailsComposer';
 import { PromptAssemblyInput, ChatAssembly } from './types';
 import { createSha256Hash, truncateForModel } from './utils';
 
-const lawRegistry = new LawRegistry('../../config/prompts');
-const personaRegistry = new PersonaRegistry('../../config/prompts');
+const promptsBasePath = path.join(__dirname, '..', '..', '..', 'config', 'prompts');
+const lawRegistry = new LawRegistry(promptsBasePath);
+const personaRegistry = new PersonaRegistry(promptsBasePath);
 
 const beliefRenderer = new BeliefRenderer();
 const worldStateRenderer = new WorldStateRenderer();
 const blueprintRenderer = new BlueprintRenderer();
 
-export function assembleChat(i: PromptAssemblyInput): ChatAssembly {
-  const law = lawRegistry.load({ layer: i.layer }, { version: i.lawVersion });
-  const persona = personaRegistry.load(null, { version: i.personaVersion });
+export async function assembleChat(
+  i: PromptAssemblyInput
+): Promise<ChatAssembly> {
+  const law = await lawRegistry.load(
+    { layer: i.layer },
+    { version: i.lawVersion }
+  );
+  const persona = await personaRegistry.load(null, {
+    version: i.personaVersion,
+  });
 
   const systemParts = [
     law.body,
@@ -68,10 +77,10 @@ export function assembleChat(i: PromptAssemblyInput): ChatAssembly {
 /**
  * @deprecated Use assembleChat instead.
  */
-export function assemblePrompt(
+export async function assemblePrompt(
   i: PromptAssemblyInput
-): { prompt: string; meta: ChatAssembly['meta'] } {
-  const { system, user, meta } = assembleChat(i);
+): Promise<{ prompt: string; meta: ChatAssembly['meta'] }> {
+  const { system, user, meta } = await assembleChat(i);
   // TODO: Add a deprecation warning log.
   return {
     prompt: `${system}\n\n${user}`,

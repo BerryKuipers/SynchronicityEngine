@@ -35,23 +35,23 @@ describe('assembleChat', () => {
     seed: 'test-seed',
   };
 
-  it('should produce a deterministic promptHash for identical inputs', () => {
-    const assembly1 = assembleChat(baseInput);
-    const assembly2 = assembleChat(baseInput);
+  it('should produce a deterministic promptHash for identical inputs', async () => {
+    const assembly1 = await assembleChat(baseInput);
+    const assembly2 = await assembleChat(baseInput);
     expect(assembly1.meta.promptHash).toBe(assembly2.meta.promptHash);
   });
 
-  it('should produce a different promptHash for different inputs', () => {
-    const assembly1 = assembleChat(baseInput);
-    const assembly2 = assembleChat({
+  it('should produce a different promptHash for different inputs', async () => {
+    const assembly1 = await assembleChat(baseInput);
+    const assembly2 = await assembleChat({
       ...baseInput,
       userIntent: 'What is the meaning of life?',
     });
     expect(assembly1.meta.promptHash).not.toBe(assembly2.meta.promptHash);
   });
 
-  it('should correctly split components into system and user prompts', () => {
-    const { system, user } = assembleChat(baseInput);
+  it('should correctly split components into system and user prompts', async () => {
+    const { system, user } = await assembleChat(baseInput);
     expect(system).toContain('This is a test law for the physical layer.');
     expect(system).toContain('This is a test persona.');
     expect(system).toContain('[GUARDRAILS]');
