@@ -6,6 +6,12 @@ import {
   EngineQueryPort,
 } from '@synchronicity/engine';
 import { EngineSnapshotV1 } from '@synchronicity/shared';
+import {
+  LLMAdapter,
+  MockDeterministicAdapter,
+  DirectOpenAIAdapter,
+  LangChainAdapter,
+} from '@synchronicity/prompt-kit';
 import storage from './routes/storage';
 
 const server = Fastify({ logger: true });
@@ -44,6 +50,34 @@ server.post('/api/v1/sessions/:id/actions', async (request, reply) => {
     void reply.code(400);
     return { error: (error as Error).message };
   }
+});
+
+let llmAdapter: LLMAdapter;
+
+switch (process.env.LLM_PROVIDER) {
+  case 'openai':
+    llmAdapter = new DirectOpenAIAdapter(process.env.OPENAI_API_KEY!);
+    break;
+  case 'langchain':
+    llmAdapter = new LangChainAdapter(process.env.OPENAI_API_KEY!);
+    break;
+  default:
+    llmAdapter = new MockDeterministicAdapter();
+}
+
+server.post('/api/v1/prompt/generate', async (request, reply) => {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    process.env.LLM_PROVIDER === 'mock'
+  ) {
+    void reply.code(400);
+    return { error: 'Mock provider is not allowed in production.' };
+  }
+
+  const { prompt } = request.body as { prompt: string };
+  const result = await llmAdapter.generate(prompt);
+
+  return { prompt, llm: result };
 });
 
 const port = Number(process.env.PORT ?? 3001);
