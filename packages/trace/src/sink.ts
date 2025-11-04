@@ -1,4 +1,4 @@
-import { TraceSpan, TraceId } from './types'
+import { TraceSpan, TraceId } from './types.js'
 import fs from 'fs'
 import path from 'path'
 

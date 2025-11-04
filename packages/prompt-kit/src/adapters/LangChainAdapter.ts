@@ -1,6 +1,6 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event';
+import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event.js';
 
 export async function generate(
   system: string,

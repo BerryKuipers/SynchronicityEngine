@@ -1,12 +1,12 @@
 import * as path from 'path';
-import { LawRegistry } from './LawRegistry';
-import { PersonaRegistry } from './PersonaRegistry';
-import { BeliefRenderer } from './render/BeliefRenderer';
-import { WorldStateRenderer } from './render/WorldStateRenderer';
-import { BlueprintRenderer } from './render/BlueprintRenderer';
-import { renderGuardrails } from './render/GuardrailsComposer';
-import { PromptAssemblyInput, ChatAssembly } from './types';
-import { createSha256Hash, truncateForModel } from './utils';
+import { LawRegistry } from './LawRegistry.js';
+import { PersonaRegistry } from './PersonaRegistry.js';
+import { BeliefRenderer } from './render/BeliefRenderer.js';
+import { WorldStateRenderer } from './render/WorldStateRenderer.js';
+import { BlueprintRenderer } from './render/BlueprintRenderer.js';
+import { renderGuardrails } from './render/GuardrailsComposer.js';
+import { PromptAssemblyInput, ChatAssembly } from './types.js';
+import { createSha256Hash, truncateForModel } from './utils/index.js';
 
 const promptsBasePath = path.join(__dirname, '..', '..', '..', 'config', 'prompts');
 const lawRegistry = new LawRegistry(promptsBasePath);

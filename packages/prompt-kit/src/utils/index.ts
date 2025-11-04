@@ -1,3 +1,3 @@
-export * from './hash';
-export * from './truncate';
-export * from './digest'
+export * from './hash.js';
+export * from './truncate.js';
+export * from './digest.js';

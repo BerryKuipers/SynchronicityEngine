@@ -18,14 +18,14 @@ function render(snapshot: EngineSnapshotV1): void {
   console.clear();
   console.log('--- Synchronicity Engine CLI ---');
   console.log('');
-  snapshot.layers.forEach((layer) => {
+  snapshot.layers.forEach((layer: any) => {
     console.log(`Layer: ${layer.id}`);
     console.log(`  Vibration: ${layer.vibration.current}`);
     console.log(`  Alignment: ${layer.alignment}`);
   });
   console.log('');
   console.log('Timeline Hints:');
-  snapshot.timelineHints.forEach((hint) => {
+  snapshot.timelineHints.forEach((hint: string) => {
     console.log(`- ${hint}`);
   });
   console.log('');
