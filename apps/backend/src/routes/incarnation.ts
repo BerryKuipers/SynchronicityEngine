@@ -12,8 +12,8 @@ const UpdateBodyPayload = Type.Partial(Type.Object({
   fatigue: Type.Number(),
   hunger: Type.Number(),
   mood: Type.Number(),
-  injuries: Type.Record(Type.String(), Type.Any()),
-  traits: Type.Record(Type.String(), Type.Any()),
+  injuries: Type.Record(Type.String(), Type.Object({ severity: Type.Number(), healing_progress: Type.Number() })),
+  traits: Type.Record(Type.String(), Type.Union([Type.Boolean(), Type.Number(), Type.String()])),
 }));
 
 export default async function (fastify: FastifyInstance) {
