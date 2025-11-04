@@ -4,5 +4,12 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../../packages/engine" },
+    { "path": "../../packages/persistence" },
+    { "path": "../../packages/prompt-kit" },
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/trace" }
+  ]
 }

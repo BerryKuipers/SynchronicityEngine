@@ -11,7 +11,8 @@ import { randomUUID } from 'crypto';
 import storage from './routes/storage';
 import promptRoutes from './routes/prompt';
 import traceRoutes from './routes/trace';
-import logRoutes from './routes/logs';
+import logRoutes from './routes/logs.js';
+import incarnationRoutes from './routes/incarnation.js';
 
 const server = Fastify({ logger: true });
 
@@ -52,6 +53,7 @@ server.register(storage);
 server.register(promptRoutes, { prefix: '/api/v1/prompt' });
 server.register(traceRoutes);
 server.register(logRoutes);
+server.register(incarnationRoutes, { prefix: '/api/v1' });
 
 server.get('/health', () => {
   return { status: 'ok' };
