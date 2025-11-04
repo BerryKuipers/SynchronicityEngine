@@ -1,15 +1,7 @@
 import type { EngineActionResult, EngineSnapshot } from '@synchronicity/engine';
 
 const extractEnvApiUrl = (): string | undefined => {
-  const meta = import.meta;
-  if (typeof meta !== 'object' || meta === null) {
-    return undefined;
-  }
-  const container = (meta as Record<string, unknown>).env;
-  if (typeof container !== 'object' || container === null) {
-    return undefined;
-  }
-  const value = (container as Record<string, unknown>).VITE_API_URL;
+  const value = import.meta.env.VITE_API_URL;
   if (typeof value === 'string' && value.trim().length > 0) {
     return value;
   }

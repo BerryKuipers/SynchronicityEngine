@@ -1,15 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
     "outDir": "dist",
-    "rootDir": "src"
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "skipLibCheck": true
   },
-  "include": ["src/**/*"],
-  "references": [
-    { "path": "../../packages/engine" },
-    { "path": "../../packages/persistence" },
-    { "path": "../../packages/prompt-kit" },
-    { "path": "../../packages/shared" },
-    { "path": "../../packages/trace" }
-  ]
+  "include": ["src"],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
 }

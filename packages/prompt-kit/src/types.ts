@@ -1,5 +1,5 @@
 import { LevelId } from '@synchronicity/shared';
-import { ChatAssembly } from './contracts/PromptContracts';
+import { ChatAssembly } from './contracts/PromptContracts.js';
 
 export type Layer = LevelId;
 

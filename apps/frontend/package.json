@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc && vite build",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -17,10 +19,11 @@
     "react-router-dom": "^7.9.5"
   },
   "devDependencies": {
+    "@types/node": "^20.19.24",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.4.5",
-    "vite": "^5.2.10"
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
   }
 }

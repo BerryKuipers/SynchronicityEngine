@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { TraceSpan, LogRecord } from '@synchronicity/trace'
+import { TraceSpan, LogRecord } from '@synchronicity/trace/types';
 
 export function TraceViewerPage() {
   const { traceId } = useParams<{ traceId: string }>()
@@ -32,7 +32,7 @@ export function TraceViewerPage() {
         setSpans(traceData)
         setLogs(logsData)
       } catch (e) {
-        setError(e.message)
+        setError(String((e as Error)?.message ?? e))
       }
     }
 

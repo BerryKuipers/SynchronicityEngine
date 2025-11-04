@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event';
+import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event.js';
 
 let openai: OpenAI | null = null;
 

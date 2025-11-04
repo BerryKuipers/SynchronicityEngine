@@ -3,8 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
-    "start": "tsx src/index.ts"
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@synchronicity/engine": "0.1.0",
@@ -12,7 +18,7 @@
     "tsx": "^4.7.0"
   },
   "devDependencies": {
-    "@types/node": "^20.11.24",
+    "@types/node": "^20.19.24",
     "typescript": "^5.3.3"
   }
 }

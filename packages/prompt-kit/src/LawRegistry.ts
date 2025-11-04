@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { IPromptRegistry } from './contracts/PromptContracts';
-import { Layer } from './types';
+import { IPromptRegistry } from './contracts/PromptContracts.js';
+import { Layer } from './types.js';
 
 export class LawRegistry
   implements IPromptRegistry<{ layer: Layer }, { version: string }>

@@ -73,11 +73,11 @@ export type PhysicalBodyDTO = {
   incarnationId: string;
   birthDate: string;
   ageYearsCached: number;
-  health: number;
-  energy: number;
-  fatigue: number;
-  hunger: number;
-  mood: number;
+  health: string;
+  energy: string;
+  fatigue: string;
+  hunger: string;
+  mood: string;
   injuries: Record<string, any>;
   traits: Record<string, any>;
   geneticSeed: string;

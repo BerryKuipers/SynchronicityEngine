@@ -1,12 +1,14 @@
 import { FastifyInstance } from 'fastify'
-import { LogIndexer, LogRecord } from '@synchronicity/trace'
+import { LogIndexer } from '@synchronicity/trace/indexer';
+import { LogRecord } from '@synchronicity/trace/types';
+import { ILogSink } from '@synchronicity/trace/log';
 import fs from 'fs'
 import path from 'path'
 import readline from 'readline'
 import { PassThrough } from 'stream'
 
-export default async function (fastify: FastifyInstance) {
-  const { logSink, traceSink } = fastify
+export default async function (fastify: FastifyInstance, opts: { logSink: ILogSink }) {
+  const { logSink } = opts;
 
   const indexer = new LogIndexer()
 
