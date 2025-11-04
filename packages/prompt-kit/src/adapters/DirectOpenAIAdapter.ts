@@ -100,7 +100,7 @@ export class DirectOpenAIAdapter implements LLMAdapter {
       if (process.env.STRICT_JSON === 'true') {
         throw new Error(`Invalid JSON response from LLM: ${(jsonError as Error).message}`);
       }
-      const repairPrompt = `Return only the tool call 'emit_event_payload' with a JSON argument that matches the provided JSON Schema exactly. No prose. No markdown. No extra keys. If a value is unknown, choose the safest default and set confidence ≤ 0.3.`;
+      const repairPrompt = `Return only the tool call 'emit_event_payload' with a JSON argument that matches the provided JSON Schema exactly. No prose. No markdown. No extra keys. If a value is unknown, choose the safest default.`;
       return this.attemptRepair(repairPrompt);
     }
 
@@ -110,7 +110,7 @@ export class DirectOpenAIAdapter implements LLMAdapter {
       if (process.env.STRICT_JSON === 'true') {
         throw new Error(`Invalid schema from LLM: ${(zodError as ZodError).message}`);
       }
-      const repairPrompt = `Return only the tool call 'emit_event_payload' with a JSON argument that matches the provided JSON Schema exactly. No prose. No markdown. No extra keys. If a value is unknown, choose the safest default and set confidence ≤ 0.3.`;
+      const repairPrompt = `Return only the tool call 'emit_event_payload' with a JSON argument that matches the provided JSON Schema exactly. No prose. No markdown. No extra keys. If a value is unknown, choose the safest default.`;
       return this.attemptRepair(repairPrompt);
     }
   }
