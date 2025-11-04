@@ -31,7 +31,7 @@ END $$;
 CREATE OR REPLACE FUNCTION update_age_years_cached()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.age_years_cached = floor(age(NEW.birth_date) / interval '1 year');
+    NEW.age_years_cached = EXTRACT(YEAR FROM age(NEW.birth_date));
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

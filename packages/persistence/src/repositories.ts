@@ -25,7 +25,7 @@ export const PhysicalBodyRepo = {
 
   async update(id: string, partialBody: Partial<PhysicalBodyDTO>): Promise<PhysicalBodyDTO> {
     const result = await db.update(physicalBodies).set({ ...partialBody, updatedAt: new Date() }).where(eq(physicalBodies.id, id)).returning();
-    return result[0] ?? null;
+    return result[0];
   },
 
   async delete(id: string): Promise<void> {
@@ -41,7 +41,7 @@ export const PhysicalBodyRepo = {
     if (delta.mood !== undefined) fieldsToUpdate.mood = sql`mood + ${delta.mood}`;
 
     const result = await db.update(physicalBodies).set(fieldsToUpdate).where(eq(physicalBodies.incarnationId, incarnationId)).returning();
-    return result[0] ?? null;
+    return result[0];
   }
 };
 
