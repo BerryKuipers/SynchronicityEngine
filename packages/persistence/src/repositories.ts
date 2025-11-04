@@ -41,7 +41,7 @@ export const PhysicalBodyRepo = {
     if (delta.mood !== undefined) fieldsToUpdate.mood = sql`mood + ${delta.mood}`;
 
     const result = await db.update(physicalBodies).set(fieldsToUpdate).where(eq(physicalBodies.incarnationId, incarnationId)).returning();
-    return result[0];
+    return result[0] ?? null;
   }
 };
 
