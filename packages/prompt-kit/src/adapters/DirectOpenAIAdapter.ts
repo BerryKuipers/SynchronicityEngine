@@ -25,14 +25,16 @@ const EngineEventPayloadJsonSchema = {
 
 export class DirectOpenAIAdapter implements LLMAdapter {
   private openai: OpenAI;
+  private model: string;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, model: string = 'gpt-4-turbo') {
     this.openai = new OpenAI({ apiKey });
+    this.model = model;
   }
 
   private async attemptRepair(repairPrompt: string): Promise<EngineEventPayload> {
     const repairedResponse = await this.openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: this.model,
       messages: [{ role: 'user', content: repairPrompt }],
       response_format: { type: 'json_object' },
     });
@@ -49,7 +51,7 @@ export class DirectOpenAIAdapter implements LLMAdapter {
 
   async generate(prompt: string): Promise<EngineEventPayload> {
     const response = await this.openai.chat.completions.create({
-      model: 'gpt-4-turbo',
+      model: this.model,
       messages: [{ role: 'user', content: prompt }],
       tools: [
         {

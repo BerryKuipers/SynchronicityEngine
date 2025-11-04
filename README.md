@@ -31,3 +31,13 @@ The backend uses LLM adapters to generate event payloads. You can configure the 
 - `STRICT_JSON`: Determines how the `DirectOpenAIAdapter` handles invalid JSON responses.
   - `true`: Fail-fast on invalid JSON.
   - `false`: (Default) Attempt a single repair prompt on invalid JSON.
+
+### Direct OpenAI Provider Settings
+- `OPENAI_API_KEY`: Your OpenAI API key.
+- `OPENAI_MODEL_NAME`: The name of the OpenAI model to use (e.g., `gpt-4-turbo`). Defaults to `gpt-4-turbo`.
+
+### LangChain Provider Settings
+- `LANGCHAIN_PROVIDER`: Specifies the LangChain provider to use.
+  - `openai`: Uses the OpenAI API through LangChain.
+  - `anthropic`: Uses the Anthropic API through LangChain.
+- `ANTHROPIC_API_KEY`: Your Anthropic API key.

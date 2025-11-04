@@ -13,6 +13,8 @@ import {
   DirectOpenAIAdapter,
   LangChainAdapter,
 } from '@synchronicity/prompt-kit';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
+import { ChatAnthropic } from 'langchain/chat_models/anthropic';
 import storage from './routes/storage';
 
 const server = Fastify({ logger: true });
@@ -55,6 +57,7 @@ server.post('/api/v1/sessions/:id/actions', async (request, reply) => {
 
 const initializeLlmAdapter = (): LLMAdapter => {
   const provider = process.env.LLM_PROVIDER;
+  const modelName = process.env.OPENAI_MODEL_NAME || 'gpt-4-turbo';
 
   if (process.env.NODE_ENV === 'production') {
     if (provider !== 'openai' && provider !== 'langchain') {
@@ -69,12 +72,23 @@ const initializeLlmAdapter = (): LLMAdapter => {
       if (!process.env.OPENAI_API_KEY) {
         throw new Error('FATAL: OPENAI_API_KEY is required for the OpenAI provider.');
       }
-      return new DirectOpenAIAdapter(process.env.OPENAI_API_KEY);
+      return new DirectOpenAIAdapter(process.env.OPENAI_API_KEY, modelName);
     case 'langchain':
-      if (!process.env.OPENAI_API_KEY) {
-        throw new Error('FATAL: OPENAI_API_KEY is required for the LangChain provider.');
+      const langchainProvider = process.env.LANGCHAIN_PROVIDER;
+      switch (langchainProvider) {
+        case 'openai':
+          if (!process.env.OPENAI_API_KEY) {
+            throw new Error('FATAL: OPENAI_API_KEY is required for the LangChain OpenAI provider.');
+          }
+          return new LangChainAdapter(new ChatOpenAI({ openAIApiKey: process.env.OPENAI_API_KEY, modelName }));
+        case 'anthropic':
+          if (!process.env.ANTHROPIC_API_KEY) {
+            throw new Error('FATAL: ANTHROPIC_API_KEY is required for the LangChain Anthropic provider.');
+          }
+          return new LangChainAdapter(new ChatAnthropic({ anthropicApiKey: process.env.ANTHROPIC_API_KEY, modelName }));
+        default:
+          throw new Error(`FATAL: Invalid LANGCHAIN_PROVIDER: ${langchainProvider}`);
       }
-      return new LangChainAdapter(process.env.OPENAI_API_KEY);
     case 'mock':
     default: // Fallback to mock for development
       return new MockDeterministicAdapter();

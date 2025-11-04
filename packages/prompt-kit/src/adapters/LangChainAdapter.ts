@@ -1,6 +1,6 @@
 import { LLMAdapter } from './LLMAdapter';
 import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event';
-import { ChatOpenAI } from 'langchain/chat_models/openai';
+import { BaseChatModel } from 'langchain/chat_models/base';
 import { HumanMessage } from 'langchain/schema';
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers';
 
@@ -25,10 +25,10 @@ const EngineEventPayloadJsonSchema = {
 };
 
 export class LangChainAdapter implements LLMAdapter {
-  private model: ChatOpenAI;
+  private model: BaseChatModel;
 
-  constructor(apiKey: string) {
-    this.model = new ChatOpenAI({ openAIApiKey: apiKey });
+  constructor(model: BaseChatModel) {
+    this.model = model;
   }
 
   async generate(prompt: string): Promise<EngineEventPayload> {
