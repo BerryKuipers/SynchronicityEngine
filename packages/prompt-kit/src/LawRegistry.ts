@@ -8,17 +8,25 @@ export interface LawPrompt {
 
 export class LawRegistry {
   private laws = new Map<string, LawPrompt[]>();
+  private basePath: string;
+
+  constructor(basePath: string) {
+    this.basePath = basePath;
+  }
 
   async load(layer: string): Promise<LawPrompt[]> {
     if (this.laws.has(layer)) {
       return this.laws.get(layer)!;
     }
 
-    const dirPath = path.join(process.cwd(), 'config', 'prompts', 'layers', layer);
+    const dirPath = path.join(this.basePath, 'layers', layer);
     const files = await fs.readdir(dirPath);
     const prompts = await Promise.all(
       files.map(async (file) => {
-        const version = path.basename(file, '.md').split('_')[1];
+        const version = path.basename(file, '.md').split('_').pop();
+        if (!version) {
+          throw new Error(`Could not extract version from filename: ${file}`);
+        }
         const content = await fs.readFile(path.join(dirPath, file), 'utf-8');
         return { version, content };
       })

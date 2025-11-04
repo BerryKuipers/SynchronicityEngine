@@ -35,8 +35,13 @@ interface AssembledPrompt {
 }
 
 export class PromptService {
-  private lawRegistry = new LawRegistry();
-  private personaRegistry = new PersonaRegistry();
+  private lawRegistry: LawRegistry;
+  private personaRegistry: PersonaRegistry;
+
+  constructor(lawRegistry: LawRegistry, personaRegistry: PersonaRegistry) {
+    this.lawRegistry = lawRegistry;
+    this.personaRegistry = personaRegistry;
+  }
 
   async assemble(input: PromptInput): Promise<AssembledPrompt> {
     await this.lawRegistry.load(input.layer);
@@ -59,7 +64,7 @@ export class PromptService {
       WorldStateRenderer(input.worldState),
       BlueprintRenderer(input.blueprint),
       GuardrailsComposer(input.guardrails),
-    ];
+    ].filter(Boolean);
 
     const prompt = components.join('\n\n');
     const promptHash = hashString(prompt);
@@ -72,10 +77,10 @@ export class PromptService {
           layer: input.layer,
           lawVersion: input.lawVersion,
           personaVersion: input.personaVersion,
-          beliefs: !!input.beliefs,
-          worldState: !!input.worldState,
-          blueprint: !!input.blueprint,
-          guardrails: !!input.guardrails,
+          beliefs: Object.keys(input.beliefs).length > 0,
+          worldState: Object.keys(input.worldState).length > 0,
+          blueprint: Object.keys(input.blueprint).length > 0,
+          guardrails: input.guardrails.length > 0,
         },
       },
     };
