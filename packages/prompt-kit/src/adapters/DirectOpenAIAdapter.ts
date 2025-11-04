@@ -30,6 +30,23 @@ export class DirectOpenAIAdapter implements LLMAdapter {
     this.openai = new OpenAI({ apiKey });
   }
 
+  private async attemptRepair(repairPrompt: string): Promise<EngineEventPayload> {
+    const repairedResponse = await this.openai.chat.completions.create({
+      model: 'gpt-4-turbo',
+      messages: [{ role: 'user', content: repairPrompt }],
+      response_format: { type: 'json_object' },
+    });
+
+    const repairedContent = repairedResponse.choices[0].message.content || '';
+
+    try {
+      const repairedPayload = JSON.parse(repairedContent);
+      return EngineEventPayloadSchema.parse(repairedPayload);
+    } catch (error) {
+      throw new Error(`Failed to repair JSON response from LLM. Final error: ${(error as Error).message}`);
+    }
+  }
+
   async generate(prompt: string): Promise<EngineEventPayload> {
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4-turbo',
@@ -55,28 +72,29 @@ export class DirectOpenAIAdapter implements LLMAdapter {
       throw new Error('Invalid response from OpenAI: no tool call found.');
     }
 
-    const payload = JSON.parse(toolCall.function.arguments);
+    const rawArguments = toolCall.function.arguments;
+    let payload: any;
+
+    try {
+      payload = JSON.parse(rawArguments);
+    } catch (jsonError) {
+      if (process.env.STRICT_JSON === 'true') {
+        throw new Error(`Invalid JSON response from LLM: ${(jsonError as Error).message}`);
+      }
+      const repairPrompt = `The following string is not valid JSON, please fix it: ${rawArguments}\n\nError: ${(jsonError as Error).toString()}`;
+      return this.attemptRepair(repairPrompt);
+    }
 
     try {
       return EngineEventPayloadSchema.parse(payload);
-    } catch (error) {
+    } catch (zodError) {
       if (process.env.STRICT_JSON === 'true') {
-        throw new Error(`Invalid JSON output from OpenAI: ${(error as ZodError).message}`);
+        throw new Error(`Invalid schema from LLM: ${(zodError as ZodError).message}`);
       }
-
-      // Single repair prompt retry
-      const repairPrompt = `The following JSON is invalid, please fix it: ${JSON.stringify(
+      const repairPrompt = `The following JSON object has an invalid schema, please fix it: ${JSON.stringify(
         payload
-      )}\n\nError: ${(error as ZodError).toString()}`;
-
-      const repairedResponse = await this.openai.chat.completions.create({
-        model: 'gpt-4-turbo',
-        messages: [{ role: 'user', content: repairPrompt }],
-        response_format: { type: 'json_object' },
-      });
-
-      const repairedPayload = JSON.parse(repairedResponse.choices[0].message.content || '{}');
-      return EngineEventPayloadSchema.parse(repairedPayload);
+      )}\n\nError: ${(zodError as ZodError).toString()}`;
+      return this.attemptRepair(repairPrompt);
     }
   }
 }

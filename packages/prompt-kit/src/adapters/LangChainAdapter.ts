@@ -47,6 +47,10 @@ export class LangChainAdapter implements LLMAdapter {
 
     const result = await runnable.invoke([new HumanMessage(prompt)]);
 
-    return EngineEventPayloadSchema.parse(result);
+    try {
+      return EngineEventPayloadSchema.parse(result);
+    } catch (error) {
+      throw new Error(`Invalid JSON output from LangChain adapter: ${(error as Error).message}`);
+    }
   }
 }

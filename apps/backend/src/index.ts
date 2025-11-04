@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import { z } from 'zod';
 import {
   createDefaultEngine,
   EngineCommandPort,
@@ -82,8 +83,19 @@ const initializeLlmAdapter = (): LLMAdapter => {
 
 const llmAdapter = initializeLlmAdapter();
 
+const promptRequestBodySchema = z.object({
+  prompt: z.string().min(1),
+});
+
 server.post('/api/v1/prompt/generate', async (request, reply) => {
-  const { prompt } = request.body as { prompt: string };
+  const parseResult = promptRequestBodySchema.safeParse(request.body);
+
+  if (!parseResult.success) {
+    void reply.code(400);
+    return { error: 'Invalid request body', details: parseResult.error.flatten() };
+  }
+
+  const { prompt } = parseResult.data;
   const result = await llmAdapter.generate(prompt);
 
   return { prompt, llm: result };

@@ -1,12 +1,11 @@
 import { DirectOpenAIAdapter } from '../adapters/DirectOpenAIAdapter';
-import { test, mock } from 'node:test';
+import { test, mock, describe } from 'node:test';
 import assert from 'node:assert';
 import OpenAI from 'openai';
 
 mock.method(OpenAI.Chat.Completions.prototype, 'create', async (options: any) => {
   const content = options.messages[0].content;
 
-  // Check for the repair prompt
   if (content.includes('please fix it')) {
     return {
       choices: [
@@ -29,7 +28,19 @@ mock.method(OpenAI.Chat.Completions.prototype, 'create', async (options: any) =>
     };
   }
 
-  // The initial call with invalid data
+  if (content.includes('invalid json string')) {
+    return {
+      choices: [
+        {
+          message: {
+            tool_calls: [{ function: { arguments: '{"actionId": "test-action", "narrative": "invalid json"' } }],
+          },
+        },
+      ],
+    };
+  }
+
+  // Default case for invalid Zod schema
   return {
     choices: [
       {
@@ -37,9 +48,7 @@ mock.method(OpenAI.Chat.Completions.prototype, 'create', async (options: any) =>
           tool_calls: [
             {
               function: {
-                // This is a valid JSON string, but it will fail Zod validation
-                // because it's missing the 'resonance' and 'remainingEnergy' fields.
-                arguments: '{"actionId": "test-action", "narrative": "invalid json", "applied": true}',
+                arguments: '{"actionId": "test-action", "narrative": "invalid schema", "applied": true}',
               },
             },
           ],
@@ -49,19 +58,30 @@ mock.method(OpenAI.Chat.Completions.prototype, 'create', async (options: any) =>
   };
 });
 
-test('DirectOpenAIAdapter should repair invalid JSON', async () => {
-  const adapter = new DirectOpenAIAdapter('test-api-key');
-  const response = await adapter.generate('invalid prompt');
+describe('DirectOpenAIAdapter', () => {
+  test('should repair a response with an invalid Zod schema', async () => {
+    const adapter = new DirectOpenAIAdapter('test-api-key');
+    const response = await adapter.generate('prompt for invalid schema');
 
-  assert.deepStrictEqual(response, {
-    actionId: 'repaired-action',
-    narrative: 'repaired narrative',
-    resonance: {
-      focus: 0.5,
-      intuition: 0.5,
-      harmony: 0.5,
-    },
-    applied: true,
-    remainingEnergy: 100,
+    assert.deepStrictEqual(response, {
+      actionId: 'repaired-action',
+      narrative: 'repaired narrative',
+      resonance: { focus: 0.5, intuition: 0.5, harmony: 0.5 },
+      applied: true,
+      remainingEnergy: 100,
+    });
+  });
+
+  test('should repair a response with an invalid JSON string', async () => {
+    const adapter = new DirectOpenAIAdapter('test-api-key');
+    const response = await adapter.generate('invalid json string');
+
+    assert.deepStrictEqual(response, {
+      actionId: 'repaired-action',
+      narrative: 'repaired narrative',
+      resonance: { focus: 0.5, intuition: 0.5, harmony: 0.5 },
+      applied: true,
+      remainingEnergy: 100,
+    });
   });
 });
