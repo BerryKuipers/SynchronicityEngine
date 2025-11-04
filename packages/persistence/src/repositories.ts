@@ -1,6 +1,7 @@
 import { db } from './db'
 import { events, engineSnapshots, sessions, runs, physicalBodies } from './schema'
 import { eq, desc, sql } from 'drizzle-orm'
+import { PgUpdateSetSource } from 'drizzle-orm/pg-core';
 import { PhysicalBodyDTO } from '@synchronicity/shared';
 
 // Define the type for the new physical body record, omitting the auto-generated fields
@@ -33,7 +34,7 @@ export const PhysicalBodyRepo = {
   },
 
   async updateVitals(incarnationId: string, delta: { health?: number; energy?: number; fatigue?: number; hunger?: number; mood?: number }): Promise<PhysicalBodyDTO> {
-    const fieldsToUpdate: any = { updatedAt: new Date() };
+    const fieldsToUpdate: PgUpdateSetSource<typeof physicalBodies> = { updatedAt: new Date() };
     if (delta.health !== undefined) fieldsToUpdate.health = sql`health + ${delta.health}`;
     if (delta.energy !== undefined) fieldsToUpdate.energy = sql`energy + ${delta.energy}`;
     if (delta.fatigue !== undefined) fieldsToUpdate.fatigue = sql`fatigue + ${delta.fatigue}`;

@@ -11,8 +11,8 @@ import { randomUUID } from 'crypto';
 import storage from './routes/storage';
 import promptRoutes from './routes/prompt';
 import traceRoutes from './routes/trace';
-import logRoutes from './routes/logs.js';
-import incarnationRoutes from './routes/incarnation.js';
+import logRoutes from './routes/logs';
+import incarnationRoutes from './routes/incarnation';
 
 const server = Fastify({ logger: true });
 
