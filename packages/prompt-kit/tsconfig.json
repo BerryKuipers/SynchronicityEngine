@@ -4,8 +4,10 @@
     "outDir": "dist",
     "rootDir": "src",
     "declaration": true,
-    "composite": true
+    "composite": true,
+    "types": ["node", "jest"],
+    "isolatedModules": true
   },
   "include": ["src/**/*.ts"],
-  "references": []
+  "references": [{ "path": "../shared" }]
 }
