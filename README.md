@@ -20,6 +20,25 @@ This project uses Postgres for data persistence. You will need to provide a Post
 5) `npm run -w @synchronicity/persistence seed`
 6) `npm run dev`
 
+## Development Stack
+To run the backend and frontend development servers together, use the `dev:stack` script:
+
+```bash
+npm run dev:stack
+```
+
+This script handles finding and killing any processes that may be lingering on the required ports (`7080` for the frontend, `7081` for the backend) before starting the servers.
+
+### Custom Ports
+To use different ports, set the `FRONTEND_PORT` and `BACKEND_PORT` environment variables:
+
+```bash
+FRONTEND_PORT=3000 BACKEND_PORT=3001 npm run dev:stack
+```
+
+### Windows Users
+The `dev:stack` script is a bash script. If you are on Windows, you can run it using Git Bash or Windows Subsystem for Linux (WSL).
+
 ## LLM Configuration
 The backend uses LLM adapters to generate event payloads. You can configure the adapter and its behavior using the following environment variables:
 
