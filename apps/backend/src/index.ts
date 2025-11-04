@@ -52,28 +52,37 @@ server.post('/api/v1/sessions/:id/actions', async (request, reply) => {
   }
 });
 
-let llmAdapter: LLMAdapter;
+const initializeLlmAdapter = (): LLMAdapter => {
+  const provider = process.env.LLM_PROVIDER;
 
-switch (process.env.LLM_PROVIDER) {
-  case 'openai':
-    llmAdapter = new DirectOpenAIAdapter(process.env.OPENAI_API_KEY!);
-    break;
-  case 'langchain':
-    llmAdapter = new LangChainAdapter(process.env.OPENAI_API_KEY!);
-    break;
-  default:
-    llmAdapter = new MockDeterministicAdapter();
-}
-
-server.post('/api/v1/prompt/generate', async (request, reply) => {
-  if (
-    process.env.NODE_ENV === 'production' &&
-    process.env.LLM_PROVIDER === 'mock'
-  ) {
-    void reply.code(400);
-    return { error: 'Mock provider is not allowed in production.' };
+  if (process.env.NODE_ENV === 'production') {
+    if (provider !== 'openai' && provider !== 'langchain') {
+      throw new Error(
+        `FATAL: Invalid LLM_PROVIDER configuration for production. Received "${provider}", but must be one of "openai" or "langchain".`
+      );
+    }
   }
 
+  switch (provider) {
+    case 'openai':
+      if (!process.env.OPENAI_API_KEY) {
+        throw new Error('FATAL: OPENAI_API_KEY is required for the OpenAI provider.');
+      }
+      return new DirectOpenAIAdapter(process.env.OPENAI_API_KEY);
+    case 'langchain':
+      if (!process.env.OPENAI_API_KEY) {
+        throw new Error('FATAL: OPENAI_API_KEY is required for the LangChain provider.');
+      }
+      return new LangChainAdapter(process.env.OPENAI_API_KEY);
+    case 'mock':
+    default: // Fallback to mock for development
+      return new MockDeterministicAdapter();
+  }
+};
+
+const llmAdapter = initializeLlmAdapter();
+
+server.post('/api/v1/prompt/generate', async (request, reply) => {
   const { prompt } = request.body as { prompt: string };
   const result = await llmAdapter.generate(prompt);
 
