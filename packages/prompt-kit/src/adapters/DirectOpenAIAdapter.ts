@@ -1,4 +1,4 @@
-import { LLMAdapter } from './LLMAdapter';
+import { LLMAdapter, LLMAdapterOptions } from './LLMAdapter';
 import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event';
 import OpenAI from 'openai';
 import { ZodError } from 'zod';
@@ -36,23 +36,40 @@ export class DirectOpenAIAdapter implements LLMAdapter {
     const repairedResponse = await this.openai.chat.completions.create({
       model: this.model,
       messages: [{ role: 'user', content: repairPrompt }],
-      response_format: { type: 'json_object' },
+      tools: [
+        {
+          type: 'function',
+          function: {
+            name: 'emit_event_payload',
+            description: 'Emits a valid EngineEventPayload JSON object.',
+            parameters: EngineEventPayloadJsonSchema,
+          },
+        },
+      ],
+      tool_choice: {
+        type: 'function',
+        function: { name: 'emit_event_payload' },
+      },
     });
 
-    const repairedContent = repairedResponse.choices[0].message.content || '';
+    const toolCall = repairedResponse.choices[0]?.message?.tool_calls?.[0];
+    if (!toolCall) {
+      throw new Error('Invalid response from OpenAI: no tool call found.');
+    }
 
     try {
-      const repairedPayload = JSON.parse(repairedContent);
+      const repairedPayload = JSON.parse(toolCall.function.arguments);
       return EngineEventPayloadSchema.parse(repairedPayload);
     } catch (error) {
       throw new Error(`Failed to repair JSON response from LLM. Final error: ${(error as Error).message}`);
     }
   }
 
-  async generate(prompt: string): Promise<EngineEventPayload> {
+  async generate(prompt: string, options?: LLMAdapterOptions): Promise<EngineEventPayload> {
     const response = await this.openai.chat.completions.create({
       model: this.model,
       messages: [{ role: 'user', content: prompt }],
+      seed: options?.seed,
       tools: [
         {
           type: 'function',
@@ -83,7 +100,7 @@ export class DirectOpenAIAdapter implements LLMAdapter {
       if (process.env.STRICT_JSON === 'true') {
         throw new Error(`Invalid JSON response from LLM: ${(jsonError as Error).message}`);
       }
-      const repairPrompt = `The following string is not valid JSON, please fix it: ${rawArguments}\n\nError: ${(jsonError as Error).toString()}`;
+      const repairPrompt = `Return only the tool call 'emit_event_payload' with a JSON argument that matches the provided JSON Schema exactly. No prose. No markdown. No extra keys. If a value is unknown, choose the safest default.`;
       return this.attemptRepair(repairPrompt);
     }
 
@@ -93,9 +110,7 @@ export class DirectOpenAIAdapter implements LLMAdapter {
       if (process.env.STRICT_JSON === 'true') {
         throw new Error(`Invalid schema from LLM: ${(zodError as ZodError).message}`);
       }
-      const repairPrompt = `The following JSON object has an invalid schema, please fix it: ${JSON.stringify(
-        payload
-      )}\n\nError: ${(zodError as ZodError).toString()}`;
+      const repairPrompt = `Return only the tool call 'emit_event_payload' with a JSON argument that matches the provided JSON Schema exactly. No prose. No markdown. No extra keys. If a value is unknown, choose the safest default.`;
       return this.attemptRepair(repairPrompt);
     }
   }

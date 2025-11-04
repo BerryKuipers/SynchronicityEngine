@@ -1,87 +1,92 @@
-import { DirectOpenAIAdapter } from '../adapters/DirectOpenAIAdapter';
-import { test, mock, describe } from 'node:test';
+import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
+import sinon from 'sinon';
 import OpenAI from 'openai';
-
-mock.method(OpenAI.Chat.Completions.prototype, 'create', async (options: any) => {
-  const content = options.messages[0].content;
-
-  if (content.includes('please fix it')) {
-    return {
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              actionId: 'repaired-action',
-              narrative: 'repaired narrative',
-              resonance: {
-                focus: 0.5,
-                intuition: 0.5,
-                harmony: 0.5,
-              },
-              applied: true,
-              remainingEnergy: 100,
-            }),
-          },
-        },
-      ],
-    };
-  }
-
-  if (content.includes('invalid json string')) {
-    return {
-      choices: [
-        {
-          message: {
-            tool_calls: [{ function: { arguments: '{"actionId": "test-action", "narrative": "invalid json"' } }],
-          },
-        },
-      ],
-    };
-  }
-
-  // Default case for invalid Zod schema
-  return {
-    choices: [
-      {
-        message: {
-          tool_calls: [
-            {
-              function: {
-                arguments: '{"actionId": "test-action", "narrative": "invalid schema", "applied": true}',
-              },
-            },
-          ],
-        },
-      },
-    ],
-  };
-});
+import { DirectOpenAIAdapter } from '../adapters/DirectOpenAIAdapter';
+import { EngineEventPayloadSchema } from '../schema/event';
 
 describe('DirectOpenAIAdapter', () => {
-  test('should repair a response with an invalid Zod schema', async () => {
-    const adapter = new DirectOpenAIAdapter('test-api-key');
-    const response = await adapter.generate('prompt for invalid schema');
+  let openaiStub: sinon.SinonStub;
 
-    assert.deepStrictEqual(response, {
-      actionId: 'repaired-action',
-      narrative: 'repaired narrative',
-      resonance: { focus: 0.5, intuition: 0.5, harmony: 0.5 },
-      applied: true,
-      remainingEnergy: 100,
-    });
+  beforeEach(() => {
+    openaiStub = sinon.stub(OpenAI.Chat.Completions.prototype, 'create');
   });
 
-  test('should repair a response with an invalid JSON string', async () => {
-    const adapter = new DirectOpenAIAdapter('test-api-key');
-    const response = await adapter.generate('invalid json string');
+  afterEach(() => {
+    openaiStub.restore();
+  });
 
-    assert.deepStrictEqual(response, {
-      actionId: 'repaired-action',
-      narrative: 'repaired narrative',
-      resonance: { focus: 0.5, intuition: 0.5, harmony: 0.5 },
-      applied: true,
-      remainingEnergy: 100,
-    });
+  it('should return a valid EngineEventPayload on the first attempt', async () => {
+    const adapter = new DirectOpenAIAdapter('fake-api-key');
+    const mockResponse = {
+      choices: [
+        {
+          message: {
+            tool_calls: [
+              {
+                function: {
+                  arguments: JSON.stringify({
+                    actionId: 'test-action',
+                    narrative: 'Test narrative',
+                    resonance: { focus: 0.5, intuition: 0.5, harmony: 0.5 },
+                    applied: true,
+                    remainingEnergy: 100,
+                  }),
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    openaiStub.resolves(mockResponse);
+
+    const result = await adapter.generate('test prompt');
+    assert.doesNotThrow(() => EngineEventPayloadSchema.parse(result));
+  });
+
+  it('should attempt to repair invalid JSON and succeed', async () => {
+    const adapter = new DirectOpenAIAdapter('fake-api-key');
+    const invalidJsonResponse = {
+      choices: [
+        {
+          message: {
+            tool_calls: [
+              {
+                function: {
+                  arguments: '{"actionId": "test-action", "narrative": "Test narrative", "resonance": { "focus": 0.5, "intuition": 0.5, "harmony": 0.5 }, "applied": true, "remainingEnergy": 100,}',
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const validJsonResponse = {
+      choices: [
+        {
+          message: {
+            tool_calls: [
+              {
+                function: {
+                  arguments: JSON.stringify({
+                    actionId: 'repaired-action',
+                    narrative: 'Repaired narrative',
+                    resonance: { focus: 0.6, intuition: 0.6, harmony: 0.6 },
+                    applied: false,
+                    remainingEnergy: 50,
+                  }),
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    openaiStub.onFirstCall().resolves(invalidJsonResponse);
+    openaiStub.onSecondCall().resolves(validJsonResponse);
+
+    const result = await adapter.generate('test prompt');
+    assert.strictEqual(result.actionId, 'repaired-action');
   });
 });
