@@ -60,3 +60,10 @@ The backend uses LLM adapters to generate event payloads. You can configure the 
   - `openai`: Uses the OpenAI API through LangChain.
   - `anthropic`: Uses the Anthropic API through LangChain.
 - `ANTHROPIC_API_KEY`: Your Anthropic API key.
+
+## Observability
+
+The SynchronicityEngine includes a comprehensive observability system that provides detailed insights into the behavior of the engine and its agents.
+
+- [Trace and Logs Schema](./docs/TraceAndLogsSchema.md): This document defines the schema for the `TraceSpan` and `LogRecord` types used in the SynchronicityEngine.
+- [Agents Guide](./docs/Agents.md): This document provides guidance on how to use the observability features of the SynchronicityEngine to investigate and debug agent behavior.
