@@ -85,3 +85,35 @@ CREATE TABLE IF NOT EXISTS "timeline_nodes" (
 	"entropy" numeric,
 	"meta" jsonb
 );
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "engine_snapshots_session_id_idx" ON "engine_snapshots" ("session_id");--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "events_session_id_idx" ON "events" ("session_id");--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "beliefs" ADD CONSTRAINT "beliefs_session_id_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "sessions"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "engine_snapshots" ADD CONSTRAINT "engine_snapshots_session_id_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "sessions"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "events" ADD CONSTRAINT "events_session_id_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "sessions"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "runs" ADD CONSTRAINT "runs_session_id_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "sessions"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "timeline_nodes" ADD CONSTRAINT "timeline_nodes_session_id_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "sessions"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;

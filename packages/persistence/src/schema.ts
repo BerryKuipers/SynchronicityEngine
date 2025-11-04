@@ -1,4 +1,4 @@
-import { pgTable, varchar, numeric, timestamp, jsonb, integer } from 'drizzle-orm/pg-core'
+import { pgTable, varchar, numeric, timestamp, jsonb, integer, index } from 'drizzle-orm/pg-core'
 
 export const sessions = pgTable('sessions', {
 id: varchar('id', { length: 36 }).primaryKey(),
@@ -8,7 +8,7 @@ label: varchar('label', { length: 255 }),
 
 export const runs = pgTable('runs', {
 id: varchar('id', { length: 36 }).primaryKey(),
-sessionId: varchar('session_id', { length: 36 }),
+sessionId: varchar('session_id', { length: 36 }).references(() => sessions.id),
 createdAt: timestamp('created_at'),
 })
 
@@ -33,7 +33,7 @@ createdAt: timestamp('created_at'),
 
 export const beliefs = pgTable('beliefs', {
 id: varchar('id', { length: 36 }).primaryKey(),
-sessionId: varchar('session_id', { length: 36 }),
+sessionId: varchar('session_id', { length: 36 }).references(() => sessions.id),
 key: varchar('key', { length: 128 }),
 strength: numeric('strength'),
 rigidity: numeric('rigidity'),
@@ -53,7 +53,7 @@ reason: varchar('reason', { length: 256 }),
 
 export const timelineNodes = pgTable('timeline_nodes', {
 id: varchar('id', { length: 36 }).primaryKey(),
-sessionId: varchar('session_id', { length: 36 }),
+sessionId: varchar('session_id', { length: 36 }).references(() => sessions.id),
 tick: integer('tick'),
 energy: numeric('energy'),
 coherence: numeric('coherence'),
@@ -73,17 +73,25 @@ meta: jsonb('meta'),
 
 export const events = pgTable('events', {
 id: varchar('id', { length: 36 }).primaryKey(),
-sessionId: varchar('session_id', { length: 36 }),
+sessionId: varchar('session_id', { length: 36 }).references(() => sessions.id),
 tick: integer('tick'),
 type: varchar('type', { length: 64 }),
 payload: jsonb('payload'),
 createdAt: timestamp('created_at'),
+}, (table) => {
+return {
+sessionIdIdx: index("events_session_id_idx").on(table.sessionId),
+}
 })
 
 export const engineSnapshots = pgTable('engine_snapshots', {
 id: varchar('id', { length: 36 }).primaryKey(),
-sessionId: varchar('session_id', { length: 36 }),
+sessionId: varchar('session_id', { length: 36 }).references(() => sessions.id),
 tick: integer('tick'),
 snapshot: jsonb('snapshot'),
 createdAt: timestamp('created_at'),
+}, (table) => {
+return {
+sessionIdIdx: index("engine_snapshots_session_id_idx").on(table.sessionId),
+}
 })
