@@ -8,33 +8,5 @@ Starting backend on :7081
 > @synchronicity/backend@0.1.0 dev
 > tsx watch src/index.ts
 
-
-node:internal/modules/run_main:123
-    triggerUncaughtException(
-    ^
-Error: Cannot find package '/app/node_modules/@synchronicity/trace/dist/index.js' imported from /app/apps/backend/src/index.ts
-    at legacyMainResolve (node:internal/modules/esm/resolve:204:26)
-    at packageResolve (node:internal/modules/esm/resolve:777:12)
-    at moduleResolve (node:internal/modules/esm/resolve:853:18)
-    at defaultResolve (node:internal/modules/esm/resolve:983:11)
-    at nextResolve (node:internal/modules/esm/hooks:748:28)
-    at resolveBase (file:///app/node_modules/tsx/dist/esm/index.mjs?1762257252654:2:3744)
-    at resolveDirectory (file:///app/node_modules/tsx/dist/esm/index.mjs?1762257252654:2:4243)
-    at resolveTsPaths (file:///app/node_modules/tsx/dist/esm/index.mjs?1762257252654:2:4984)
-    at async resolve (file:///app/node_modules/tsx/dist/esm/index.mjs?1762257252654:2:5355)
-    at async nextResolve (node:internal/modules/esm/hooks:748:22) {
-  code: 'ERR_MODULE_NOT_FOUND'
-}
-
-Node.js v22.20.0
 Starting frontend on :7080
 Dev stack running → FE http://localhost:7080 | BE http://localhost:7081
-
-> @synchronicity/frontend@0.1.0 dev
-> vite
-
-
-  VITE v5.4.21  ready in 236 ms
-
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: http://192.168.0.2:5173/

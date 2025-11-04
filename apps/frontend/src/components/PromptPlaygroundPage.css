@@ -1,0 +1,42 @@
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+  font-family: monospace;
+}
+
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.label {
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  font-family: monospace;
+}
+
+.textarea {
+  height: 100px;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+.responseContainer {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
