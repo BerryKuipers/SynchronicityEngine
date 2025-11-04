@@ -8,7 +8,8 @@
     "build": "tsc -b",
     "dev": "tsc -b -w",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsc -p tsconfig.json && node --test dist/__tests__/**/*.spec.js"
   },
   "dependencies": {
     "zod": "^3.22.4",
@@ -18,6 +19,9 @@
   "devDependencies": {
     "typescript": "^5.2.2",
     "@types/node": "^20.8.9",
-    "eslint": "^8.52.0"
+    "eslint": "^8.52.0",
+    "tsx": "^4.20.6",
+    "sinon": "^15.2.0",
+    "@types/sinon": "^10.0.20"
   }
 }

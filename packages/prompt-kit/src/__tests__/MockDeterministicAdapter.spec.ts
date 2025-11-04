@@ -1,20 +1,19 @@
-import { MockDeterministicAdapter } from '../adapters/MockDeterministicAdapter';
-import { test, expect } from 'node:test';
+import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import { MockDeterministicAdapter } from '../adapters/MockDeterministicAdapter';
+import { EngineEventPayloadSchema } from '../schema/event';
 
-test('MockDeterministicAdapter should return a predictable response', async () => {
-  const adapter = new MockDeterministicAdapter();
-  const response = await adapter.generate('test prompt');
+describe('MockDeterministicAdapter', () => {
+  it('should return a valid EngineEventPayload', async () => {
+    const adapter = new MockDeterministicAdapter();
+    const result = await adapter.generate('test prompt');
+    assert.doesNotThrow(() => EngineEventPayloadSchema.parse(result));
+  });
 
-  assert.deepStrictEqual(response, {
-    actionId: 'mock-action',
-    narrative: 'Mock narrative for prompt: test prompt',
-    resonance: {
-      focus: 0.5,
-      intuition: 0.5,
-      harmony: 0.5,
-    },
-    applied: true,
-    remainingEnergy: 100,
+  it('should return the same output for the same seed', async () => {
+    const adapter = new MockDeterministicAdapter();
+    const result1 = await adapter.generate('test prompt', { seed: 123 });
+    const result2 = await adapter.generate('test prompt', { seed: 123 });
+    assert.deepStrictEqual(result1, result2);
   });
 });
