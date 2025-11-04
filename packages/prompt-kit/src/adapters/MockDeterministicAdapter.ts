@@ -1,29 +1,48 @@
-import { LLMAdapter, LLMAdapterOptions } from './LLMAdapter';
 import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event';
-import { seededPick, hashString } from '../utils';
+import { createSha256Hash } from '../utils';
 
-export class MockDeterministicAdapter implements LLMAdapter {
-  async generate(prompt: string, options?: LLMAdapterOptions): Promise<EngineEventPayload> {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('MockDeterministicAdapter cannot be used in production.');
-    }
+function simpleScoring(user: string): {
+  actionId: string;
+  narrative: string;
+} {
+  // TODO: Factor this out into a small module if duplication appears elsewhere.
+  const excitementMatch = user.match(/Excitement: (\d+)/);
+  const rigidityMatch = user.match(/Rigidity: (\d+)/);
 
-    const seed = options?.seed ?? Date.now();
-    const actionIds = ['action-1', 'action-2', 'action-3'];
-    const narratives = ['Narrative A', 'Narrative B', 'Narrative C'];
+  const excitement = excitementMatch ? parseInt(excitementMatch[1], 10) : 0;
+  const rigidity = rigidityMatch ? parseInt(rigidityMatch[1], 10) : 5;
 
-    const payload: EngineEventPayload = {
-      actionId: seededPick(seed, actionIds),
-      narrative: seededPick(seed, narratives),
-      resonance: {
-        focus: seededPick(seed, [0.1, 0.5, 0.9]),
-        intuition: seededPick(seed, [0.2, 0.6, 0.8]),
-        harmony: seededPick(seed, [0.3, 0.7, 0.7]),
-      },
-      applied: seededPick(seed, [true, false]),
-      remainingEnergy: seededPick(seed, [50, 75, 100]),
+  if (excitement > 7 && rigidity < 4) {
+    return {
+      actionId: 'act-on-excitement',
+      narrative: 'User is aligned and flexible, acting on highest excitement.',
     };
-
-    return EngineEventPayloadSchema.parse(payload);
   }
+  return {
+    actionId: 'observe-and-reflect',
+    narrative: 'User is in a state of observation and reflection.',
+  };
+}
+
+export function generate(
+  system: string,
+  user: string,
+  options?: { seed?: number }
+): EngineEventPayload {
+  const { actionId, narrative } = simpleScoring(user);
+  const hash = createSha256Hash(`${user}-${options?.seed}`);
+
+  const payload = {
+    actionId,
+    narrative,
+    resonance: {
+      focus: parseFloat(`0.${hash.substring(0, 2)}`),
+      intuition: parseFloat(`0.${hash.substring(2, 4)}`),
+      harmony: parseFloat(`0.${hash.substring(4, 6)}`),
+    },
+    applied: true,
+    remainingEnergy: parseInt(hash.substring(6, 8), 16),
+  };
+
+  return EngineEventPayloadSchema.parse(payload);
 }

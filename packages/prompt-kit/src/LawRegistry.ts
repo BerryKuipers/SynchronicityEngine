@@ -1,43 +1,33 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
+import { IPromptRegistry } from './contracts/PromptContracts';
+import { Layer } from './types';
 
-export interface LawPrompt {
-  version: string;
-  content: string;
-}
-
-export class LawRegistry {
-  private laws = new Map<string, LawPrompt[]>();
+export class LawRegistry
+  implements IPromptRegistry<{ layer: Layer }, { version: string }>
+{
   private basePath: string;
 
   constructor(basePath: string) {
     this.basePath = basePath;
   }
 
-  async load(layer: string): Promise<LawPrompt[]> {
-    if (this.laws.has(layer)) {
-      return this.laws.get(layer)!;
-    }
-
-    const dirPath = path.join(this.basePath, 'layers', layer);
-    const files = await fs.readdir(dirPath);
-    const prompts = await Promise.all(
-      files.map(async (file) => {
-        const version = path.basename(file, '.md').split('_').pop();
-        if (!version) {
-          throw new Error(`Could not extract version from filename: ${file}`);
-        }
-        const content = await fs.readFile(path.join(dirPath, file), 'utf-8');
-        return { version, content };
-      })
+  public async load(
+    key: { layer: Layer },
+    version: { version: string }
+  ): Promise<{ path: string; body: string }> {
+    const filePath = path.join(
+      this.basePath,
+      'layers',
+      key.layer,
+      `law_${version.version}.md`
     );
 
-    this.laws.set(layer, prompts);
-    return prompts;
-  }
-
-  get(layer: string, version: string): LawPrompt | undefined {
-    const prompts = this.laws.get(layer);
-    return prompts?.find((p) => p.version === version);
+    try {
+      const body = await fs.readFile(filePath, 'utf-8');
+      return { path: filePath, body };
+    } catch (error) {
+      throw new Error(`Could not load law file: ${filePath}`);
+    }
   }
 }

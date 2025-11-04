@@ -1,88 +1,89 @@
+import * as path from 'path';
 import { LawRegistry } from './LawRegistry';
 import { PersonaRegistry } from './PersonaRegistry';
-import {
-  BeliefRenderer,
-  WorldStateRenderer,
-  BlueprintRenderer,
-  GuardrailsComposer,
-} from './renderers';
-import { hashString } from './utils';
+import { BeliefRenderer } from './render/BeliefRenderer';
+import { WorldStateRenderer } from './render/WorldStateRenderer';
+import { BlueprintRenderer } from './render/BlueprintRenderer';
+import { renderGuardrails } from './render/GuardrailsComposer';
+import { PromptAssemblyInput, ChatAssembly } from './types';
+import { createSha256Hash, truncateForModel } from './utils';
 
-interface PromptInput {
-  layer: string;
-  lawVersion: string;
-  personaVersion: string;
-  beliefs: Record<string, any>;
-  worldState: Record<string, any>;
-  blueprint: Record<string, any>;
-  guardrails: string[];
-}
+const promptsBasePath = path.join(__dirname, '..', '..', '..', 'config', 'prompts');
+const lawRegistry = new LawRegistry(promptsBasePath);
+const personaRegistry = new PersonaRegistry(promptsBasePath);
 
-interface AssembledPrompt {
-  prompt: string;
-  meta: {
-    promptHash: string;
-    components: {
-      layer: string;
-      lawVersion: string;
-      personaVersion: string;
-      beliefs: boolean;
-      worldState: boolean;
-      blueprint: boolean;
-      guardrails: boolean;
-    };
+const beliefRenderer = new BeliefRenderer();
+const worldStateRenderer = new WorldStateRenderer();
+const blueprintRenderer = new BlueprintRenderer();
+
+export async function assembleChat(
+  i: PromptAssemblyInput
+): Promise<ChatAssembly> {
+  const law = await lawRegistry.load(
+    { layer: i.layer },
+    { version: i.lawVersion }
+  );
+  const persona = await personaRegistry.load(null, {
+    version: i.personaVersion,
+  });
+
+  const systemParts = [
+    law.body,
+    persona.body,
+    renderGuardrails(i.seed, i.guardrails),
+  ];
+  const userParts = [
+    beliefRenderer.render(i.beliefs),
+    worldStateRenderer.render(i.world),
+    blueprintRenderer.render(i.blueprint),
+    `[USER INTENT]\n${i.userIntent}`,
+  ];
+
+  let system = systemParts.join('\n\n');
+  let user = userParts.join('\n\n');
+
+  if (process.env.MODEL_MAX_TOKENS) {
+    const { system: truncSystem, user: truncUser } = truncateForModel(
+      system,
+      user,
+      parseInt(process.env.MODEL_MAX_TOKENS, 10)
+    );
+    system = truncSystem;
+    user = truncUser;
+  }
+
+  const promptHash = createSha256Hash(system + '\n---\n' + user);
+
+  return {
+    system,
+    user,
+    meta: {
+      layer: i.layer,
+      lawVersion: i.lawVersion,
+      personaVersion: i.personaVersion,
+      seed: i.seed,
+      promptHash,
+      components: {
+        lawPath: law.path,
+        personaPath: persona.path,
+        beliefsCount: i.beliefs.beliefs.length,
+        excitementCount: i.blueprint.excitement.length,
+        blueprintThemes: i.blueprint.themes,
+      },
+    },
   };
 }
 
-export class PromptService {
-  private lawRegistry: LawRegistry;
-  private personaRegistry: PersonaRegistry;
-
-  constructor(lawRegistry: LawRegistry, personaRegistry: PersonaRegistry) {
-    this.lawRegistry = lawRegistry;
-    this.personaRegistry = personaRegistry;
-  }
-
-  async assemble(input: PromptInput): Promise<AssembledPrompt> {
-    await this.lawRegistry.load(input.layer);
-    await this.personaRegistry.load();
-
-    const law = this.lawRegistry.get(input.layer, input.lawVersion);
-    const persona = this.personaRegistry.get(input.personaVersion);
-
-    if (!law) {
-      throw new Error(`Law not found for layer ${input.layer} and version ${input.lawVersion}`);
-    }
-    if (!persona) {
-      throw new Error(`Persona not found for version ${input.personaVersion}`);
-    }
-
-    const components = [
-      persona.content,
-      law.content,
-      BeliefRenderer(input.beliefs),
-      WorldStateRenderer(input.worldState),
-      BlueprintRenderer(input.blueprint),
-      GuardrailsComposer(input.guardrails),
-    ].filter(Boolean);
-
-    const prompt = components.join('\n\n');
-    const promptHash = hashString(prompt);
-
-    return {
-      prompt,
-      meta: {
-        promptHash,
-        components: {
-          layer: input.layer,
-          lawVersion: input.lawVersion,
-          personaVersion: input.personaVersion,
-          beliefs: Object.keys(input.beliefs).length > 0,
-          worldState: Object.keys(input.worldState).length > 0,
-          blueprint: Object.keys(input.blueprint).length > 0,
-          guardrails: input.guardrails.length > 0,
-        },
-      },
-    };
-  }
+/**
+ * @deprecated Use assembleChat instead.
+ */
+export async function assemblePrompt(
+  i: PromptAssemblyInput
+): Promise<{ prompt: string; meta: ChatAssembly['meta'] }> {
+  const { system, user, meta } = await assembleChat(i);
+  // TODO: Add a deprecation warning log.
+  return {
+    prompt: `${system}\n\n${user}`,
+    meta,
+  };
 }
