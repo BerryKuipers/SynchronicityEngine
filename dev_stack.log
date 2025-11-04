@@ -4,7 +4,3 @@
 
 Ensuring ports free: FE:7080 BE:7081
 Starting backend on :7081
-
-> @synchronicity/backend@0.1.0 dev
-> tsx watch src/index.ts
-

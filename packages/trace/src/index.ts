@@ -1,2 +1,5 @@
-export type { TraceEvent } from './types'
-export const createTraceSink = () => ({ trace: (e: unknown) => {} })
+export * from './types'
+export * from './sink'
+export * from './redact'
+export * from './log'
+export * from './indexer'

@@ -41,16 +41,26 @@ export const AiField: React.FC<AiFieldProps> = ({
     setConfidence(null);
 
     try {
-      const data = await aiFill({
-        layer,
-        lawVersion,
-        personaVersion,
-        field: { id, kind, purpose, currentValue: value },
-        beliefs,
-        world,
-        blueprint,
-        extraContext,
+      const response = await fetch('/api/v1/ai/fill', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          layer,
+          lawVersion,
+          personaVersion,
+          field: { id, kind, purpose, currentValue: value },
+          beliefs,
+          world,
+          blueprint,
+          extraContext,
+        }),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch AI content');
+      }
+
+      const data = await response.json();
       onChange(data.text);
       setConfidence(data.confidence);
     } catch (err) {
@@ -60,9 +70,11 @@ export const AiField: React.FC<AiFieldProps> = ({
     }
   };
 
+  const InputComponent = kind === 'long_text' || kind === 'json' ? 'textarea' : 'input';
+
   return (
     <div className="ai-field">
-      <input
+      <InputComponent
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}

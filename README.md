@@ -39,6 +39,14 @@ FRONTEND_PORT=3000 BACKEND_PORT=3001 npm run dev:stack
 ### Windows Users
 The `dev:stack` script is a bash script. If you are on Windows, you can run it using Git Bash or Windows Subsystem for Linux (WSL).
 
+## API Endpoints
+
+- `POST /api/v1/prompt/assemble`: Assembles the `system` and `user` prompts from the provided inputs.
+- `POST /api/v1/prompt/generate`: Executes the full prompt pipeline: assembly → LLM call → validation. Returns the raw LLM output and metadata.
+- `POST /api/v1/ai/fill`: Takes a description of a field and its context and returns AI-generated content to fill it.
+- `GET /api/v1/traces`: Retrieves all trace events recorded by the backend.
+- `GET /api/v1/logs`: Retrieves all log records recorded by the backend.
+
 ## LLM Configuration
 The backend uses LLM adapters to generate event payloads. You can configure the adapter and its behavior using the following environment variables:
 

@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { initialFormState } from './constants';
 import './PromptPlaygroundPage.css';
-import { AiField } from './ai/AiField';
 
 const formFields = [
   { name: 'layer', label: 'Layer', type: 'text' },
   { name: 'lawVersion', label: 'Law Version', type: 'text' },
   { name: 'personaVersion', label: 'Persona Version', type: 'text' },
+  { name: 'beliefs', label: 'Beliefs', type: 'textarea' },
+  { name: 'world', label: 'World', type: 'textarea' },
+  { name: 'blueprint', label: 'Blueprint', type: 'textarea' },
+  { name: 'userIntent', label: 'User Intent', type: 'text' },
   { name: 'seed', label: 'Seed', type: 'text' },
 ];
+
+import { AiField } from './ai/AiField';
 
 export const PromptPlaygroundPage: React.FC = () => {
   const [formState, setFormState] = useState(initialFormState);

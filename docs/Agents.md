@@ -11,6 +11,23 @@ This document defines guidelines for building AI agents that embody the layers o
 - **TODO markers**: where functionality is incomplete, include `TODO:` to indicate work needed. Do not stub functions silently.
 - **No mocks**: avoid returning fake data or placeholder responses inside production code. Use TODOs instead.
 
+### AI Fill Endpoint
+
+The backend provides a `POST /api/v1/ai/fill` endpoint to generate content for a field based on its context.
+
+**Example Payload:**
+
+```json
+{
+  "layer": "physical-mind",
+  "field": {
+    "id": "test-field",
+    "kind": "short_text",
+    "purpose": "for testing"
+  }
+}
+```
+
 ## Implementation Notes
 
 Classes should use single quotes for string literals and avoid inline comments except where a `TODO:` is necessary. Use TypeScript’s typing system to enforce contract boundaries between layers. See the files under `src/layers` for examples of basic agent implementations.

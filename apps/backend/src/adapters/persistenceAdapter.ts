@@ -9,7 +9,7 @@ sessionId,
 tick,
 type: e.type,
 payload: e.payload,
-createdAt: new Date()
+createdAt: Date.now()
 })
 }
 
@@ -19,7 +19,7 @@ id: crypto.randomUUID(),
 sessionId,
 tick,
 snapshot,
-createdAt: new Date()
+createdAt: Date.now()
 })
 }
 

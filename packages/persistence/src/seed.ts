@@ -1,4 +1,4 @@
-import { createSession, startRun } from './repositories.js'
+import { createSession, startRun } from './repositories'
 const s = crypto.randomUUID()
 const r = crypto.randomUUID()
 await createSession(s, 'dev')

@@ -32,7 +32,7 @@ describe('assembleChat', () => {
       ],
     },
     userIntent: 'What should I do next?',
-    seed: 1234,
+    seed: 'test-seed',
   };
 
   it('should produce a deterministic promptHash for identical inputs', async () => {

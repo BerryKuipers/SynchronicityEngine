@@ -1,25 +1,21 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.adjustResonance = exports.resolveActionEnergy = exports.calculateResonanceLevel = exports.assertValidAction = exports.normalizeResonance = exports.RESONANCE_MIN = exports.RESONANCE_MAX = void 0;
-exports.RESONANCE_MAX = 100;
-exports.RESONANCE_MIN = 0;
-var VIBRANT_THRESHOLD = 34;
-var CHAOTIC_THRESHOLD = 67;
-var normalizeResonance = function (vector) {
+export const RESONANCE_MAX = 100;
+export const RESONANCE_MIN = 0;
+const VIBRANT_THRESHOLD = 34;
+const CHAOTIC_THRESHOLD = 67;
+export const normalizeResonance = (vector) => {
     return {
         focus: clamp(vector.focus),
         intuition: clamp(vector.intuition),
         harmony: clamp(vector.harmony),
     };
 };
-exports.normalizeResonance = normalizeResonance;
-var clamp = function (value) {
+const clamp = (value) => {
     if (Number.isNaN(value) || !Number.isFinite(value)) {
-        return exports.RESONANCE_MIN;
+        return RESONANCE_MIN;
     }
-    return Math.min(exports.RESONANCE_MAX, Math.max(exports.RESONANCE_MIN, Math.round(value)));
+    return Math.min(RESONANCE_MAX, Math.max(RESONANCE_MIN, Math.round(value)));
 };
-var assertValidAction = function (action) {
+export const assertValidAction = (action) => {
     if (!action.id.trim()) {
         throw new Error('Action id must be provided');
     }
@@ -30,10 +26,9 @@ var assertValidAction = function (action) {
         throw new Error('Action cost cannot be negative');
     }
 };
-exports.assertValidAction = assertValidAction;
-var calculateResonanceLevel = function (vector) {
-    var normalized = (0, exports.normalizeResonance)(vector);
-    var average = (normalized.focus + normalized.intuition + normalized.harmony) / 3;
+export const calculateResonanceLevel = (vector) => {
+    const normalized = normalizeResonance(vector);
+    const average = (normalized.focus + normalized.intuition + normalized.harmony) / 3;
     if (average < VIBRANT_THRESHOLD) {
         return 'calm';
     }
@@ -42,20 +37,17 @@ var calculateResonanceLevel = function (vector) {
     }
     return 'chaotic';
 };
-exports.calculateResonanceLevel = calculateResonanceLevel;
-var resolveActionEnergy = function (context, cost) {
-    var remaining = context.availableEnergy - cost;
+export const resolveActionEnergy = (context, cost) => {
+    const remaining = context.availableEnergy - cost;
     if (remaining < 0) {
         throw new Error('Insufficient energy for action');
     }
     return remaining;
 };
-exports.resolveActionEnergy = resolveActionEnergy;
-var adjustResonance = function (vector, shift) {
-    return (0, exports.normalizeResonance)({
+export const adjustResonance = (vector, shift) => {
+    return normalizeResonance({
         focus: vector.focus + shift.focus,
         intuition: vector.intuition + shift.intuition,
         harmony: vector.harmony + shift.harmony,
     });
 };
-exports.adjustResonance = adjustResonance;

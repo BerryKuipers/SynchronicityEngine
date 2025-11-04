@@ -30,7 +30,7 @@ export async function assembleChat(
   const systemParts = [
     law.body,
     persona.body,
-    renderGuardrails(String(i.seed), i.guardrails),
+    renderGuardrails(i.seed, i.guardrails),
   ];
   const userParts = [
     beliefRenderer.render(i.beliefs),
@@ -61,7 +61,7 @@ export async function assembleChat(
       layer: i.layer,
       lawVersion: i.lawVersion,
       personaVersion: i.personaVersion,
-      seed: String(i.seed),
+      seed: i.seed,
       promptHash,
       components: {
         lawPath: law.path,

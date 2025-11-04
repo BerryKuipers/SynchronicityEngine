@@ -8,8 +8,10 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces",
-    "typecheck": "tsc -b",
-    "clean": "rimraf apps/**/dist packages/**/dist"
+    "dev": "npm run dev --workspaces",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "dev:stack": "bash scripts/dev-up.sh"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^7.6.0",

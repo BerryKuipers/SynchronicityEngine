@@ -90,11 +90,10 @@ export default async function (fastify: FastifyInstance) {
 
       // TODO: map confidence from result
       return reply.send({
-        text: result,
-        confidence: 0.9,
+        text: result.narrative,
+        confidence: result.resonance.focus,
         seedUsed: seed,
         promptHash: assembly.meta.promptHash,
-        reasons: ['mocked response'],
       });
     }
   );
