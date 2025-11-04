@@ -29,6 +29,14 @@ export const PhysicalBodyRepo = {
     return result[0];
   },
 
+  async updateByIncarnationId(incarnationId: string, partialBody: Partial<PhysicalBodyDTO>): Promise<PhysicalBodyDTO | null> {
+    const result = await db.update(physicalBodies)
+      .set({ ...partialBody, updatedAt: new Date() })
+      .where(eq(physicalBodies.incarnationId, incarnationId))
+      .returning();
+    return result[0] ?? null;
+  },
+
   async delete(id: string): Promise<void> {
     await db.delete(physicalBodies).where(eq(physicalBodies.id, id));
   },
