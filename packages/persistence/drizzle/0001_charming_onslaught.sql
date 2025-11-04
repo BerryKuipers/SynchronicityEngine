@@ -31,7 +31,9 @@ END $$;
 CREATE OR REPLACE FUNCTION update_age_years_cached()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.age_years_cached = EXTRACT(YEAR FROM age(NEW.birth_date));
+    IF TG_OP = 'INSERT' OR NEW.birth_date IS DISTINCT FROM OLD.birth_date THEN
+        NEW.age_years_cached = EXTRACT(YEAR FROM age(NEW.birth_date));
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

@@ -78,8 +78,8 @@ export type PhysicalBodyDTO = {
   fatigue: number;
   hunger: number;
   mood: number;
-  injuries: Record<string, { severity: number; healing_progress: number; }>;
-  traits: Record<string, boolean | number | string>;
+  injuries: Record<string, any>;
+  traits: Record<string, any>;
   geneticSeed: string;
   createdAt: string;
   updatedAt: string;
