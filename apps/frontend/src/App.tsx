@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { MainPage } from './components/MainPage';
+import { PromptPlaygroundPage } from './components/PromptPlaygroundPage';
 import { TraceViewerPage } from './components/TraceViewerPage';
 
 const App: React.FC = () => {
@@ -9,6 +10,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/trace/:traceId" element={<TraceViewerPage />} />
+        <Route path="/playground" element={<PromptPlaygroundPage />} />
       </Routes>
     </Router>
   );
