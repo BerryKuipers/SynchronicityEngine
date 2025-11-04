@@ -43,6 +43,19 @@ BEFORE INSERT OR UPDATE ON "physical_bodies"
 FOR EACH ROW
 EXECUTE FUNCTION update_age_years_cached();
 --> statement-breakpoint
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+   NEW.updated_at = now();
+   RETURN NEW;
+END;
+$$ LANGUAGE 'plpgsql';
+--> statement-breakpoint
+CREATE TRIGGER trigger_update_physical_bodies_updated_at
+BEFORE UPDATE ON "physical_bodies"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "physical_bodies" ADD CONSTRAINT "physical_bodies_incarnation_id_incarnations_id_fk" FOREIGN KEY ("incarnation_id") REFERENCES "incarnations"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
