@@ -1,5 +1,5 @@
-import { db } from './db'
-import { events, engineSnapshots, sessions, runs } from './schema'
+import { db } from './db.js'
+import { events, engineSnapshots, sessions, runs } from './schema.js'
 import { eq, desc } from 'drizzle-orm'
 
 export async function appendEvent(e: { id: string; sessionId: string; tick: number; type: string; payload: unknown; createdAt: Date }) {

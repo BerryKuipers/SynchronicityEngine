@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { getLatestSnapshot } from '../adapters/persistenceAdapter'
+import { getLatestSnapshot } from '../src/adapters/persistenceAdapter.js'
 
 export default async function storage(f: FastifyInstance) {
 f.get('/api/v1/snapshots/latest/:sessionId', async (req, _reply) => {

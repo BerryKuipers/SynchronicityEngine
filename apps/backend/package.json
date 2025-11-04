@@ -15,10 +15,12 @@
     "@synchronicity/engine": "0.1.0",
     "@synchronicity/prompt-kit": "0.0.1",
     "@synchronicity/shared": "0.1.0",
-    "fastify": "^4.26.2"
+    "fastify": "^4.29.1",
+    "json-schema-to-ts": "^3.1.1",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "@types/node": "^20.12.7",
+    "@types/node": "^20.19.24",
     "tsx": "^4.20.6"
   }
 }

@@ -8,5 +8,3 @@ Starting backend on :7081
 > @synchronicity/backend@0.1.0 dev
 > tsx watch src/index.ts
 
-Starting frontend on :7080
-Dev stack running → FE http://localhost:7080 | BE http://localhost:7081

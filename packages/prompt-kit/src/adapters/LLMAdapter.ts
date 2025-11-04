@@ -5,5 +5,5 @@ export interface LLMAdapterOptions {
 }
 
 export interface LLMAdapter {
-  generate(prompt: string, options?: LLMAdapterOptions): Promise<EngineEventPayload>;
+  generate(system: string, user: string, options?: LLMAdapterOptions): Promise<EngineEventPayload>;
 }

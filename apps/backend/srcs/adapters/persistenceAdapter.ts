@@ -1,6 +1,6 @@
 import { appendEvent, saveEngineSnapshot, latestSnapshot } from '@synchronicity/persistence'
-import { EngineEvent } from '@engine/interfaces/Ports'
-import { EngineSnapshotV1 } from '@shared/types'
+import { EngineEvent } from '@synchronicity/engine/interfaces/Ports'
+import { EngineSnapshotV1 } from '@synchronicity/shared/types'
 
 export async function persistEvent(sessionId: string, tick: number, e: EngineEvent) {
 await appendEvent({

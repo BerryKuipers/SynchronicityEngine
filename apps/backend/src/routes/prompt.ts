@@ -1,11 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { assembleChat, makeDigest } from '@synchronicity/prompt-kit';
-import * as DirectOpenAiAdapter from '@synchronicity/prompt-kit/adapters/DirectOpenAiAdapter';
-import * as LangChainAdapter from '@synchronicity/prompt-kit/adapters/LangChainAdapter';
-import * as MockDeterministicAdapter from '@synchronicity/prompt-kit/adapters/MockDeterministicAdapter';
+import { assembleChat, makeDigest, DirectOpenAIAdapter, LangChainAdapter, MockDeterministicAdapter, PromptAssemblyInput } from '@synchronicity/prompt-kit';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { PromptAssemblyInput } from '@synchronicity/prompt-kit/types';
 import { randomUUID } from 'crypto';
 
 const LLM_PROVIDER = process.env.LLM_PROVIDER || 'mock';
@@ -46,7 +42,7 @@ const promptAssemblyInputSchema = z.object({
   world: worldStateSchema,
   blueprint: blueprintSchema,
   userIntent: z.string(),
-  seed: z.string(),
+  seed: z.number(),
   guardrails: z.array(z.string()).optional(),
 });
 
@@ -66,9 +62,9 @@ export default async function (fastify: FastifyInstance) {
     '/generate',
     { schema: { body: zodToJsonSchema(promptAssemblyInputSchema) } },
     async (request, reply) => {
-      const { createTraceContext } = fastify;
+      const { createTraceContext } = fastify as any;
       const { log, trace } = createTraceContext();
-      const { body } = request;
+      const { body } = request as { body: PromptAssemblyInput };
 
       // 1. Assemble phase
       const assembleSpanId = randomUUID();
@@ -126,21 +122,24 @@ export default async function (fastify: FastifyInstance) {
 
       let llmResponse;
       try {
+        const directOpenAiAdapter = new DirectOpenAIAdapter({ apiKey: process.env.OPENAI_API_KEY });
+        const langChainAdapter = new LangChainAdapter();
+        const mockDeterministicAdapter = new MockDeterministicAdapter();
         switch (LLM_PROVIDER) {
           case 'openai':
-            llmResponse = await DirectOpenAiAdapter.generate(
+            llmResponse = await directOpenAiAdapter.generate(
               chatAssembly.system,
               chatAssembly.user
             );
             break;
           case 'langchain':
-            llmResponse = await LangChainAdapter.generate(
+            llmResponse = await langChainAdapter.generate(
               chatAssembly.system,
               chatAssembly.user
             );
             break;
           default:
-            llmResponse = MockDeterministicAdapter.generate(
+            llmResponse = mockDeterministicAdapter.generate(
               chatAssembly.system,
               chatAssembly.user
             );
@@ -151,7 +150,7 @@ export default async function (fastify: FastifyInstance) {
           topic: 'adapter.error',
           msg: 'Error calling LLM provider',
           data: {
-            error: error.message,
+            error: (error as Error).message,
           },
         });
         throw error;

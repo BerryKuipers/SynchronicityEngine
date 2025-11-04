@@ -1,5 +1,5 @@
 import { LevelId } from '@synchronicity/shared';
-import { ChatAssembly } from './contracts/PromptContracts';
+import type { ChatAssembly } from './contracts/PromptContracts';
 
 export type Layer = LevelId;
 
@@ -37,8 +37,8 @@ export type PromptAssemblyInput = {
   world: WorldState;
   blueprint: Blueprint;
   userIntent: string;
-  seed: string;
+  seed: number;
   guardrails?: string[];
 };
 
-export { ChatAssembly };
+export type { ChatAssembly };

@@ -8,12 +8,15 @@ import {
 import { EngineSnapshotV1 } from '@synchronicity/shared';
 import { createInMemoryWithNdjson, ITraceSink, createNdjsonLogger, ILogSink, LogRecord, TraceSpan } from '@synchronicity/trace';
 import { randomUUID } from 'crypto';
-import storage from './routes/storage';
-import promptRoutes from './routes/prompt';
-import traceRoutes from './routes/trace';
-import logRoutes from './routes/logs';
+import storage from './routes/storage.js';
+import promptRoutes from './routes/prompt.js';
+import traceRoutes from './routes/trace.js';
+import logRoutes from './routes/logs.js';
+import aiRoutes from './routes/ai.js';
+import tracePlugin from './plugins/trace.js';
 
 const server = Fastify({ logger: true });
+server.register(tracePlugin);
 
 // The engine now conforms to the port interfaces
 const engine: EngineCommandPort & EngineQueryPort = createDefaultEngine();
@@ -49,9 +52,10 @@ server.decorate('createTraceContext', createTraceContext);
 await server.register(cors, { origin: true });
 
 server.register(storage);
-server.register(promptRoutes, { prefix: '/api/v1/prompt' });
+server.register(promptRoutes);
 server.register(traceRoutes);
 server.register(logRoutes);
+server.register(aiRoutes);
 
 server.get('/health', () => {
   return { status: 'ok' };
@@ -88,10 +92,11 @@ const host = process.env.HOST ?? '0.0.0.0';
 const start = async (): Promise<void> => {
   try {
     await server.listen({ port, host });
+    console.log(`Server listening on http://${host}:${port}`);
   } catch (error) {
     server.log.error(error);
     process.exit(1);
   }
 };
 
-await start();
+start();

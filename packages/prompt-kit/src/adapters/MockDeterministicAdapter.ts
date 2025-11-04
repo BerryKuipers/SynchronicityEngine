@@ -1,5 +1,6 @@
 import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event';
 import { createSha256Hash } from '../utils';
+import { LLMAdapter } from './LLMAdapter';
 
 function simpleScoring(user: string): {
   actionId: string;
@@ -24,25 +25,27 @@ function simpleScoring(user: string): {
   };
 }
 
-export function generate(
-  system: string,
-  user: string,
-  options?: { seed?: number }
-): EngineEventPayload {
-  const { actionId, narrative } = simpleScoring(user);
-  const hash = createSha256Hash(`${user}-${options?.seed}`);
+export class MockDeterministicAdapter implements LLMAdapter {
+  async generate(
+    system: string,
+    user: string,
+    options?: { seed?: number }
+  ): Promise<EngineEventPayload> {
+    const { actionId, narrative } = simpleScoring(user);
+    const hash = createSha256Hash(`${user}-${options?.seed}`);
 
-  const payload = {
-    actionId,
-    narrative,
-    resonance: {
-      focus: parseFloat(`0.${hash.substring(0, 2)}`),
-      intuition: parseFloat(`0.${hash.substring(2, 4)}`),
-      harmony: parseFloat(`0.${hash.substring(4, 6)}`),
-    },
-    applied: true,
-    remainingEnergy: parseInt(hash.substring(6, 8), 16),
-  };
+    const payload = {
+      actionId,
+      narrative,
+      resonance: {
+        focus: parseFloat(`0.${hash.substring(0, 2)}`),
+        intuition: parseFloat(`0.${hash.substring(2, 4)}`),
+        harmony: parseFloat(`0.${hash.substring(4, 6)}`),
+      },
+      applied: true,
+      remainingEnergy: parseInt(hash.substring(6, 8), 16),
+    };
 
-  return EngineEventPayloadSchema.parse(payload);
+    return EngineEventPayloadSchema.parse(payload);
+  }
 }
