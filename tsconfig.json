@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [
+    { "path": "apps/backend" },
+    { "path": "apps/cli" },
+    { "path": "apps/frontend" },
+    { "path": "packages/engine" },
+    { "path": "packages/persistence" },
+    { "path": "packages/prompt-kit" },
+    { "path": "packages/shared" },
+    { "path": "packages/trace" }
+  ]
+}

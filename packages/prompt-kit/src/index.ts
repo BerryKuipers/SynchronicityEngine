@@ -1,10 +1,10 @@
-export * from './adapters/DirectOpenAIAdapter';
+export { generate as generateWithOpenAI } from './adapters/DirectOpenAIAdapter';
 export * from './adapters/LLMAdapter';
-export * from './adapters/LangChainAdapter';
+export { generate as generateWithLangChain } from './adapters/LangChainAdapter';
 export * from './adapters/MockDeterministicAdapter';
 export * from './LawRegistry';
 export * from './PersonaRegistry';
 export * from './PromptService';
-export * from './renderers';
+export * from './render';
 export * from './schema/event';
 export * from './utils';

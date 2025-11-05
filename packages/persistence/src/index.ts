@@ -1,2 +1,2 @@
-export * from './db'
-export * from './repositories'
+export * from './db.js'
+export * from './repositories.js'

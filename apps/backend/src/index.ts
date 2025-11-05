@@ -8,11 +8,11 @@ import {
 import { EngineSnapshotV1 } from '@synchronicity/shared';
 import { createInMemoryWithNdjson, ITraceSink, createNdjsonLogger, ILogSink, LogRecord, TraceSpan } from '@synchronicity/trace';
 import { randomUUID } from 'crypto';
-import storage from './routes/storage';
-import promptRoutes from './routes/prompt';
-import traceRoutes from './routes/trace';
-import logRoutes from './routes/logs';
-import aiRoutes from './routes/ai';
+import storage from './routes/storage.js';
+import promptRoutes from './routes/prompt.js';
+import traceRoutes from './routes/trace.js';
+import logRoutes from './routes/logs.js';
+import aiRoutes from './routes/ai.js';
 
 const server = Fastify({ logger: true });
 
@@ -53,7 +53,7 @@ server.register(storage);
 server.register(promptRoutes, { prefix: '/api/v1/prompt' });
 server.register(traceRoutes);
 server.register(logRoutes);
-server.register(aiRoutes);
+server.register(aiRoutes, { prefix: '/api/v1/ai' });
 
 server.get('/health', () => {
   return { status: 'ok' };

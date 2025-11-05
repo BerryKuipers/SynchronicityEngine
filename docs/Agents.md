@@ -11,23 +11,6 @@ This document defines guidelines for building AI agents that embody the layers o
 - **TODO markers**: where functionality is incomplete, include `TODO:` to indicate work needed. Do not stub functions silently.
 - **No mocks**: avoid returning fake data or placeholder responses inside production code. Use TODOs instead.
 
-### AI Fill Endpoint
-
-The backend provides a `POST /api/v1/ai/fill` endpoint to generate content for a field based on its context.
-
-**Example Payload:**
-
-```json
-{
-  "layer": "physical-mind",
-  "field": {
-    "id": "test-field",
-    "kind": "short_text",
-    "purpose": "for testing"
-  }
-}
-```
-
 ## Implementation Notes
 
 Classes should use single quotes for string literals and avoid inline comments except where a `TODO:` is necessary. Use TypeScript’s typing system to enforce contract boundaries between layers. See the files under `src/layers` for examples of basic agent implementations.
@@ -53,3 +36,24 @@ To search for specific log entries, you can use the `/api/v1/logs/search` endpoi
 - "Find all logs with a level of 'error' for traceId '123e4567-e89b-12d3-a456-426614174000'"
 - "Show me all logs with the topic 'adapter.call' for the last hour"
 - "Get the trace for runId 'abcdef123456'"
+
+## AI Field Auto-Fill
+
+The frontend includes a reusable `AiField` component that provides a "magic wand" button to automatically fill in content based on the context of the field. This feature is powered by the `/api/v1/ai/fill` endpoint in the backend.
+
+### `/api/v1/ai/fill` Endpoint
+
+This endpoint accepts a `POST` request with a JSON body that describes the field to be filled. Here is an example payload:
+
+```json
+{
+  "layer": "physical",
+  "field": {
+    "id": "userIntent",
+    "kind": "short_text",
+    "purpose": "The user's intent."
+  }
+}
+```
+
+The endpoint will return a JSON response with the auto-filled text, a confidence score, and other metadata.

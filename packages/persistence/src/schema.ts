@@ -95,27 +95,3 @@ return {
 sessionIdIdx: index("engine_snapshots_session_id_idx").on(table.sessionId),
 }
 })
-
-export const incarnations = pgTable('incarnations', {
-id: varchar('id', { length: 36 }).primaryKey(),
-sessionId: varchar('session_id', { length: 36 }).references(() => sessions.id),
-personaId: varchar('persona_id', { length: 36 }),
-createdAt: timestamp('created_at').defaultNow(),
-})
-
-export const physicalBodies = pgTable('physical_bodies', {
-id: varchar('id', { length: 36 }).primaryKey(),
-incarnationId: varchar('incarnation_id', { length: 36 }).references(() => incarnations.id),
-birthDate: timestamp('birth_date'),
-ageYearsCached: integer('age_years_cached'),
-health: numeric('health').default('100.0'),
-energy: numeric('energy').default('100.0'),
-fatigue: numeric('fatigue').default('0.0'),
-hunger: numeric('hunger').default('0.0'),
-mood: numeric('mood').default('0.0'),
-injuries: jsonb('injuries').default('{}'),
-traits: jsonb('traits').default('{}'),
-geneticSeed: varchar('genetic_seed', { length: 255 }),
-createdAt: timestamp('created_at').defaultNow(),
-updatedAt: timestamp('updated_at').defaultNow(),
-})

@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
-import { initialFormState } from './constants';
+import { initialFormState } from './constants.js';
+import { AiField } from './ai/AiField.js';
 import './PromptPlaygroundPage.css';
 
 const formFields = [
   { name: 'layer', label: 'Layer', type: 'text' },
   { name: 'lawVersion', label: 'Law Version', type: 'text' },
   { name: 'personaVersion', label: 'Persona Version', type: 'text' },
-  { name: 'beliefs', label: 'Beliefs', type: 'textarea' },
-  { name: 'world', label: 'World', type: 'textarea' },
-  { name: 'blueprint', label: 'Blueprint', type: 'textarea' },
-  { name: 'userIntent', label: 'User Intent', type: 'text' },
   { name: 'seed', label: 'Seed', type: 'text' },
 ];
-
-import { AiField } from './ai/AiField';
 
 export const PromptPlaygroundPage: React.FC = () => {
   const [formState, setFormState] = useState(initialFormState);
@@ -105,7 +100,7 @@ export const PromptPlaygroundPage: React.FC = () => {
         <AiField
           id="beliefs"
           kind="json"
-          purpose="Enter the beliefs as a JSON object."
+          purpose="A set of beliefs that the user holds."
           value={formState.beliefs}
           onChange={(value) => handleAiFieldChange('beliefs', value)}
           layer={formState.layer}
@@ -117,7 +112,7 @@ export const PromptPlaygroundPage: React.FC = () => {
         <AiField
           id="world"
           kind="json"
-          purpose="Enter the world state as a JSON object."
+          purpose="The current state of the world."
           value={formState.world}
           onChange={(value) => handleAiFieldChange('world', value)}
           layer={formState.layer}
@@ -129,7 +124,7 @@ export const PromptPlaygroundPage: React.FC = () => {
         <AiField
           id="blueprint"
           kind="json"
-          purpose="Enter the blueprint as a JSON object."
+          purpose="The user's blueprint."
           value={formState.blueprint}
           onChange={(value) => handleAiFieldChange('blueprint', value)}
           layer={formState.layer}
@@ -141,12 +136,13 @@ export const PromptPlaygroundPage: React.FC = () => {
         <AiField
           id="userIntent"
           kind="short_text"
-          purpose="Enter the user's intent."
+          purpose="The user's intent."
           value={formState.userIntent}
           onChange={(value) => handleAiFieldChange('userIntent', value)}
           layer={formState.layer}
         />
       </div>
+
 
       <div>
         <button

@@ -2,14 +2,13 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "composite": true
   },
   "include": ["src/**/*"],
   "references": [
     { "path": "../../packages/engine" },
-    { "path": "../../packages/persistence" },
     { "path": "../../packages/prompt-kit" },
-    { "path": "../../packages/shared" },
-    { "path": "../../packages/trace" }
+    { "path": "../../packages/shared" }
   ]
 }

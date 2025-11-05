@@ -3,11 +3,10 @@ import { FromSchema } from 'json-schema-to-ts';
 import {
   assembleChat,
   LLMAdapter,
-  DirectOpenAIAdapter,
-  MockDeterministicAdapter,
   PromptAssemblyInput,
   ChatAssembly,
 } from '@synchronicity/prompt-kit';
+import { adapters } from '@synchronicity/prompt-kit';
 
 const fillBodySchema = {
   type: 'object',
@@ -40,14 +39,14 @@ const fillBodySchema = {
 
 function selectAdapter(): LLMAdapter {
   if (process.env.OPENAI_API_KEY) {
-    return new DirectOpenAIAdapter({ apiKey: process.env.OPENAI_API_KEY });
+    return new adapters.DirectOpenAIAdapter({ apiKey: process.env.OPENAI_API_KEY });
   }
-  return new MockDeterministicAdapter();
+  return new adapters.MockDeterministicAdapter();
 }
 
 export default async function (fastify: FastifyInstance) {
   fastify.post<{ Body: FromSchema<typeof fillBodySchema> }>(
-    '/api/v1/ai/fill',
+    '/fill',
     { schema: { body: fillBodySchema } },
     async (request, reply) => {
       const {
