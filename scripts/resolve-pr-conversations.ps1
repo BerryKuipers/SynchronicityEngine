@@ -93,16 +93,11 @@ try {
 
     while ($hasNextPage) {
         # Execute the query with pagination cursor
-        $variables = @{
-            owner = $Owner
-            repo = $Repo
-            prNumber = $PrNumber
-        }
         if ($after) {
-            $variables.after = $after
+            $result = gh api graphql -H "X-Github-Next-Global-ID:1" -f query=$query -F owner=$Owner -F repo=$Repo -F prNumber=$PrNumber -F after=$after | ConvertFrom-Json
+        } else {
+            $result = gh api graphql -H "X-Github-Next-Global-ID:1" -f query=$query -F owner=$Owner -F repo=$Repo -F prNumber=$PrNumber | ConvertFrom-Json
         }
-
-        $result = gh api graphql -H "X-Github-Next-Global-ID:1" -f query=$query -F owner=$Owner -F repo=$Repo -F prNumber=$PrNumber $(if ($after) { "-F after=$after" } else { "" }) | ConvertFrom-Json
 
         if (-not $result.data.repository.pullRequest) {
             Write-Host "${Red}❌ Pull Request #$PrNumber not found in $Owner/$Repo${Reset}"
