@@ -20,6 +20,10 @@ import aiRoutes from './routes/ai.js';
 
 const server = Fastify({ logger: true });
 
+// Configuration
+const API_VERSION = process.env.API_VERSION ?? 'v1';
+const API_PREFIX = `/api/${API_VERSION}`;
+
 // The engine now conforms to the port interfaces
 const engine: EngineCommandPort & EngineQueryPort = createDefaultEngine();
 
@@ -31,24 +35,24 @@ const logSink: ILogSink = createNdjsonLogger('var/logs', 'backend');
 await server.register(cors, { origin: true });
 
 server.register(storage);
-server.register(promptRoutes, { prefix: '/api/v1/prompt', logSink, traceSink });
+server.register(promptRoutes, { prefix: `${API_PREFIX}/prompt`, logSink, traceSink });
 server.register(logRoutes, { logSink });
-server.register(incarnationRoutes, { prefix: '/api/v1' });
-server.register(aiRoutes, { prefix: '/api/v1/ai' });
+server.register(incarnationRoutes, { prefix: API_PREFIX });
+server.register(aiRoutes, { prefix: `${API_PREFIX}/ai` });
 
 server.get('/health', () => {
   return { status: 'ok' };
 });
 
 // Refactored to use the snapshot query port and the v1 DTO
-server.get('/api/v1/sessions/:id', async (request): Promise<EngineSnapshotV1> => {
+server.get(`${API_PREFIX}/sessions/:id`, async (request): Promise<EngineSnapshotV1> => {
   const { id } = request.params as { id: string };
   const snapshot = await engine.snapshot(id);
   return snapshot;
 });
 
 // Refactored to use the act command port
-server.post('/api/v1/sessions/:id/actions', async (request, reply) => {
+server.post(`${API_PREFIX}/sessions/:id/actions`, async (request, reply) => {
   const { id } = request.params as { id: string };
   const body = request.body as { actionId?: string };
   if (!body?.actionId) {
