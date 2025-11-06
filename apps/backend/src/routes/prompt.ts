@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { assembleChat, DirectOpenAIAdapter, LangChainAdapter, MockDeterministicAdapter } from '@synchronicity/prompt-kit';
-import { makeDigest } from '@synchronicity/prompt-kit/utils';
+import { makeDigest } from '@synchronicity/prompt-kit';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import type { PromptAssemblyInput } from '@synchronicity/prompt-kit/types';

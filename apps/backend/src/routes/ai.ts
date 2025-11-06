@@ -2,11 +2,10 @@ import { FastifyInstance } from 'fastify';
 import { FromSchema } from 'json-schema-to-ts';
 import {
   assembleChat,
-  LLMAdapter,
-  PromptAssemblyInput,
-  ChatAssembly,
+  DirectOpenAIAdapter,
+  MockDeterministicAdapter,
 } from '@synchronicity/prompt-kit';
-import { adapters } from '@synchronicity/prompt-kit';
+import type { PromptAssemblyInput, ChatAssembly } from '@synchronicity/prompt-kit/types';
 
 const fillBodySchema = {
   type: 'object',
@@ -36,13 +35,6 @@ const fillBodySchema = {
   },
   required: ['layer', 'field'],
 } as const;
-
-function selectAdapter(): LLMAdapter {
-  if (process.env.OPENAI_API_KEY) {
-    return new adapters.DirectOpenAIAdapter({ apiKey: process.env.OPENAI_API_KEY });
-  }
-  return new adapters.MockDeterministicAdapter();
-}
 
 export default async function (fastify: FastifyInstance) {
   fastify.post<{ Body: FromSchema<typeof fillBodySchema> }>(
@@ -80,12 +72,12 @@ export default async function (fastify: FastifyInstance) {
         world: world ?? {},
         blueprint: blueprint ?? { themes: [], excitement: [] },
         userIntent,
-      } as PromptAssemblyInput);
+      } as unknown as PromptAssemblyInput);
 
-      const adapter = selectAdapter();
-      const result = await adapter.generate(assembly.system, assembly.user, {
-        seed,
-      });
+      // Select and use adapter functionally
+      const result = process.env.OPENAI_API_KEY
+        ? await DirectOpenAIAdapter.generate(assembly.system, assembly.user, { seed })
+        : MockDeterministicAdapter.generate(assembly.system, assembly.user, { seed });
 
       // TODO: map confidence from result
       return reply.send({
