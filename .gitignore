@@ -7,3 +7,6 @@ coverage/
 .env
 npm-debug.log*
 *.tsbuildinfo
+
+# Claude Code toolkit (managed as submodule at .claude-toolkit)
+.claude/
