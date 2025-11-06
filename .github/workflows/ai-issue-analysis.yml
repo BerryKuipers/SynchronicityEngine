@@ -1,0 +1,210 @@
+name: AI Issue Analysis
+on:
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  gemini-issue-review:
+    runs-on: ubuntu-latest
+    # Run on new issues or when 'needs-analysis' label added
+    if: |
+      (github.event_name == 'issues' && github.event.action == 'opened') ||
+      (github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'needs-analysis')) ||
+      (github.event_name == 'issue_comment' && contains(github.event.issue.labels.*.name, 'needs-analysis'))
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install @google/generative-ai
+
+      - name: Run Gemini Issue Analysis
+        uses: actions/github-script@v7
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        with:
+          script: |
+            const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+            // Initialize Gemini
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+
+            const issue = context.payload.issue;
+
+            // Check if already analyzed
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number
+            });
+
+            const alreadyAnalyzed = comments.data.some(c =>
+              c.user.type === 'Bot' && c.body.includes('🤖 AI Issue Analysis')
+            );
+
+            if (alreadyAnalyzed) {
+              console.log('Issue already analyzed, skipping');
+              return;
+            }
+
+            const prompt = `# AI Issue Analysis Request
+
+            **CONTEXT**: You are an expert software architect and product manager reviewing a GitHub issue for the SynchronicityEngine project - a consciousness simulation engine with metaphysical architecture, React frontend, Fastify backend, and PostgreSQL persistence. The project models reality as layered consciousness (Oversoul→Soul→Higher Mind→Physical Mind→Personality).
+
+            **YOUR ROLE**: Provide constructive feedback, architectural insights, and implementation guidance for this issue.
+
+            ## Issue Details
+            **Title**: ${issue.title}
+            **Author**: ${issue.user.login}
+            **Labels**: ${issue.labels.map(l => l.name).join(', ') || 'None'}
+            **Created**: ${issue.created_at}
+
+            **Description**:
+            \`\`\`
+            ${issue.body || 'No description provided'}
+            \`\`\`
+
+            ## Analysis Framework
+
+            Please analyze this issue across these dimensions:
+
+            ### 1. 🎯 **Clarity & Completeness**
+            - Is the problem clearly defined?
+            - Are acceptance criteria specific enough?
+            - Are there missing technical details?
+            - Suggest improvements to issue description
+
+            ### 2. 🏗️ **Architectural Alignment**
+            - Does this align with the consciousness-layer architecture?
+            - How does it fit into Oversoul→Soul→Higher Mind→Physical Mind→Personality hierarchy?
+            - Are there potential impacts on existing systems?
+            - Does it follow hexagonal architecture principles?
+            - Any concerns about layer boundaries or data flow?
+
+            ### 3. 🔧 **Technical Feasibility**
+            - Is the proposed solution technically sound?
+            - Are there alternative approaches to consider?
+            - What are potential implementation challenges?
+            - Dependencies or prerequisites needed?
+            - Performance or scalability considerations?
+
+            ### 4. 📊 **Scope & Priority Assessment**
+            - Is the scope appropriate for the described effort?
+            - Should this be broken into smaller issues?
+            - Priority level recommendation (P0: Critical, P1: High, P2: Medium, P3: Low)
+            - Estimated complexity (S: 1-3h, M: 0.5-1d, L: 1-2d)
+
+            ### 5. 🚀 **Implementation Suggestions**
+            - Specific technical recommendations
+            - Files/components that will need changes
+            - Testing strategy suggestions
+            - Potential edge cases to consider
+            - Integration points with other systems
+
+            ### 6. 🔍 **Questions & Clarifications**
+            - What additional information is needed?
+            - Specific questions for the issue author
+            - Areas that need more detail
+
+            ## Output Format
+
+            Provide your analysis in a structured format that can be posted as a GitHub comment. Use markdown formatting with clear sections and actionable recommendations.
+
+            **Be constructive, specific, and helpful. Focus on improving the issue quality and implementation success. Reference relevant design documents (DesignSpecification.md, roadmap.md, Agents.md) when applicable.**`;
+
+            try {
+              console.log('🤖 Running Gemini analysis...');
+              const result = await model.generateContent(prompt);
+              const analysis = result.response.text();
+
+              if (analysis && analysis.trim()) {
+                const comment = `## 🤖 AI Issue Analysis
+
+            *Automated analysis by Gemini 2.0 Flash - Review and validate recommendations*
+
+            ${analysis}
+
+            ---
+
+            💡 **Note**: This is an AI-generated analysis. Please review suggestions carefully and validate against project requirements.
+
+            🔄 **Re-analysis**: Edit the issue or add the \`needs-analysis\` label to trigger a new analysis.
+
+            📚 **References**:
+            - [Design Specification](../blob/development/docs/DesignSpecification.md)
+            - [Roadmap](../blob/development/docs/roadmap.md)
+            - [Agents Guidelines](../blob/development/Agents.md)`;
+
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: comment
+                });
+
+                console.log('✅ Gemini analysis comment posted successfully');
+
+                // Add analysis label
+                try {
+                  await github.rest.issues.addLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.issue.number,
+                    labels: ['ai-analyzed']
+                  });
+                } catch (labelError) {
+                  console.log('Note: Could not add ai-analyzed label (may not exist)');
+                }
+
+              } else {
+                console.log('⚠️ No analysis content generated');
+              }
+
+            } catch (error) {
+              console.error('❌ Gemini analysis failed:', error);
+
+              // Post fallback comment
+              const fallbackComment = `## 🤖 AI Issue Analysis - Service Unavailable
+
+            The automated AI analysis service encountered an error: ${error.message}
+
+            ### Manual Analysis Options:
+
+            1. **Gemini AI**: Use [Google AI Studio](https://aistudio.google.com) for analysis
+            2. **Claude.ai**: Copy the issue content to [Claude.ai](https://claude.ai)
+            3. **ChatGPT**: Use [ChatGPT](https://chat.openai.com) for architectural review
+
+            ### Analysis Framework:
+            Please review this issue for:
+            - 🎯 Clarity & completeness of requirements
+            - 🏗️ Architectural alignment with consciousness layers
+            - 🔧 Technical feasibility and implementation approach
+            - 📊 Scope appropriateness and priority assessment
+            - 🚀 Specific implementation recommendations
+            - 🔍 Questions needing clarification
+
+            ### Project Context:
+            - Consciousness simulation engine modeling reality as layered hierarchy
+            - Hexagonal architecture with engine-agnostic adapters
+            - Text-first design evolving to 2D symbolic and eventually 3D/VR`;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: fallbackComment
+              });
+            }
