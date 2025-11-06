@@ -9,5 +9,10 @@
     "skipLibCheck": true
   },
   "include": ["src"],
-  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"],
+  "references": [
+    { "path": "../../packages/engine" },
+    { "path": "../../packages/prompt-kit" },
+    { "path": "../../packages/shared" }
+  ]
 }

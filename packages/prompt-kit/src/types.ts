@@ -41,4 +41,4 @@ export type PromptAssemblyInput = {
   guardrails?: string[];
 };
 
-export { ChatAssembly };
+export type { ChatAssembly };

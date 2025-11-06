@@ -16,6 +16,8 @@ import storage from './routes/storage.js';
 import promptRoutes from './routes/prompt.js';
 import logRoutes from './routes/logs.js';
 import incarnationRoutes from './routes/incarnation.js';
+import aiRoutes from './routes/ai.js';
+
 const server = Fastify({ logger: true });
 
 // The engine now conforms to the port interfaces
@@ -32,6 +34,7 @@ server.register(storage);
 server.register(promptRoutes, { prefix: '/api/v1/prompt', logSink, traceSink });
 server.register(logRoutes, { logSink });
 server.register(incarnationRoutes, { prefix: '/api/v1' });
+server.register(aiRoutes, { prefix: '/api/v1/ai' });
 
 server.get('/health', () => {
   return { status: 'ok' };

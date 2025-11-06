@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
 import { initialFormState } from './constants.js';
+import { AiField } from './ai/AiField.js';
 import './PromptPlaygroundPage.css';
 
 const formFields = [
   { name: 'layer', label: 'Layer', type: 'text' },
   { name: 'lawVersion', label: 'Law Version', type: 'text' },
   { name: 'personaVersion', label: 'Persona Version', type: 'text' },
-  { name: 'beliefs', label: 'Beliefs', type: 'textarea' },
-  { name: 'world', label: 'World', type: 'textarea' },
-  { name: 'blueprint', label: 'Blueprint', type: 'textarea' },
-  { name: 'userIntent', label: 'User Intent', type: 'text' },
   { name: 'seed', label: 'Seed', type: 'text' },
 ];
 
@@ -27,6 +24,13 @@ export const PromptPlaygroundPage: React.FC = () => {
     setFormState({
       ...formState,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleAiFieldChange = (name: string, value: string) => {
+    setFormState({
+      ...formState,
+      [name]: value,
     });
   };
 
@@ -81,24 +85,64 @@ export const PromptPlaygroundPage: React.FC = () => {
       {formFields.map(({ name, label, type }) => (
         <div key={name} className="formGroup">
           <label className="label">{label}</label>
-          {type === 'textarea' ? (
-            <textarea
-              name={name}
-              value={formState[name as keyof typeof formState]}
-              onChange={handleChange}
-              className="textarea"
-            />
-          ) : (
-            <input
-              type={type}
-              name={name}
-              value={formState[name as keyof typeof formState]}
-              onChange={handleChange}
-              className="input"
-            />
-          )}
+          <input
+            type={type}
+            name={name}
+            value={formState[name as keyof typeof formState]}
+            onChange={handleChange}
+            className="input"
+          />
         </div>
       ))}
+
+      <div className="formGroup">
+        <label className="label">Beliefs</label>
+        <AiField
+          id="beliefs"
+          kind="json"
+          purpose="A set of beliefs that the user holds."
+          value={formState.beliefs}
+          onChange={(value) => handleAiFieldChange('beliefs', value)}
+          layer={formState.layer}
+        />
+      </div>
+
+      <div className="formGroup">
+        <label className="label">World</label>
+        <AiField
+          id="world"
+          kind="json"
+          purpose="The current state of the world."
+          value={formState.world}
+          onChange={(value) => handleAiFieldChange('world', value)}
+          layer={formState.layer}
+        />
+      </div>
+
+      <div className="formGroup">
+        <label className="label">Blueprint</label>
+        <AiField
+          id="blueprint"
+          kind="json"
+          purpose="The user's blueprint."
+          value={formState.blueprint}
+          onChange={(value) => handleAiFieldChange('blueprint', value)}
+          layer={formState.layer}
+        />
+      </div>
+
+      <div className="formGroup">
+        <label className="label">User Intent</label>
+        <AiField
+          id="userIntent"
+          kind="short_text"
+          purpose="The user's intent."
+          value={formState.userIntent}
+          onChange={(value) => handleAiFieldChange('userIntent', value)}
+          layer={formState.layer}
+        />
+      </div>
+
 
       <div>
         <button

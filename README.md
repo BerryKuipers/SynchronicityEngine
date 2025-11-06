@@ -61,6 +61,27 @@ The backend uses LLM adapters to generate event payloads. You can configure the 
   - `anthropic`: Uses the Anthropic API through LangChain.
 - `ANTHROPIC_API_KEY`: Your Anthropic API key.
 
+## AI Field Auto-Fill
+
+The frontend includes a reusable `AiField` component that provides a "magic wand" button to automatically fill in content based on the context of the field. This feature is powered by the `/api/v1/ai/fill` endpoint in the backend.
+
+### `/api/v1/ai/fill` Endpoint
+
+This endpoint accepts a `POST` request with a JSON body that describes the field to be filled. Here is an example payload:
+
+```json
+{
+  "layer": "physical",
+  "field": {
+    "id": "userIntent",
+    "kind": "short_text",
+    "purpose": "The user's intent."
+  }
+}
+```
+
+The endpoint will return a JSON response with the auto-filled text, a confidence score, and other metadata.
+
 ## Observability
 
 The SynchronicityEngine includes a comprehensive observability system that provides detailed insights into the behavior of the engine and its agents.

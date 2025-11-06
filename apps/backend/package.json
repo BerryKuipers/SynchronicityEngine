@@ -17,7 +17,8 @@
     "@synchronicity/prompt-kit": "0.0.1",
     "@synchronicity/shared": "0.1.0",
     "dotenv": "^16.6.1",
-    "fastify": "^4.26.2"
+    "fastify": "^4.26.2",
+    "json-schema-to-ts": "^3.1.1"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",

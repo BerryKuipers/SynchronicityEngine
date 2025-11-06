@@ -36,3 +36,24 @@ To search for specific log entries, you can use the `/api/v1/logs/search` endpoi
 - "Find all logs with a level of 'error' for traceId '123e4567-e89b-12d3-a456-426614174000'"
 - "Show me all logs with the topic 'adapter.call' for the last hour"
 - "Get the trace for runId 'abcdef123456'"
+
+## AI Field Auto-Fill
+
+The frontend includes a reusable `AiField` component that provides a "magic wand" button to automatically fill in content based on the context of the field. This feature is powered by the `/api/v1/ai/fill` endpoint in the backend.
+
+### `/api/v1/ai/fill` Endpoint
+
+This endpoint accepts a `POST` request with a JSON body that describes the field to be filled. Here is an example payload:
+
+```json
+{
+  "layer": "physical",
+  "field": {
+    "id": "userIntent",
+    "kind": "short_text",
+    "purpose": "The user's intent."
+  }
+}
+```
+
+The endpoint will return a JSON response with the auto-filled text, a confidence score, and other metadata.
