@@ -33,16 +33,29 @@
 
 param(
     [Parameter(Mandatory = $false)]
-    [string]$Owner = "BerryKuipers",
+    [string]$Owner,
 
     [Parameter(Mandatory = $false)]
-    [string]$Repo = "SynchronicityEngine",
+    [string]$Repo,
 
     [Parameter(Mandatory = $true)]
     [int]$PrNumber,
 
     [switch]$DryRun
 )
+
+# Auto-detect repo from gh CLI if not provided
+if (-not $Owner -or -not $Repo) {
+    try {
+        $repoInfo = gh repo view --json owner,name | ConvertFrom-Json
+        if (-not $Owner) { $Owner = $repoInfo.owner.login }
+        if (-not $Repo) { $Repo = $repoInfo.name }
+        Write-Host "${Blue}Auto-detected repo: $Owner/$Repo${Reset}"
+    } catch {
+        Write-Host "${Red}Error: Could not auto-detect repository. Please specify -Owner and -Repo${Reset}"
+        exit 1
+    }
+}
 
 # Colors for output
 $Green = "`e[32m"
