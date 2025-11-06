@@ -8,23 +8,29 @@ export async function generate(
   user: string
 ): Promise<EngineEventPayload> {
   const provider = process.env.LANGCHAIN_PROVIDER || 'openai';
+  const temperature = parseFloat(process.env.LANGCHAIN_TEMPERATURE || '0.7');
 
   let llm;
 
-  if (provider === 'anthropic') {
-    // Use Anthropic Claude
-    llm = new ChatAnthropic({
-      modelName: process.env.ANTHROPIC_MODEL_NAME || 'claude-sonnet-4-5',
-      apiKey: process.env.ANTHROPIC_API_KEY,
-      temperature: 0.7,
-    });
-  } else {
-    // Use OpenAI (default)
-    llm = new ChatOpenAI({
-      modelName: process.env.OPENAI_MODEL_NAME || 'gpt-4.1-mini',
-      apiKey: process.env.OPENAI_API_KEY,
-      temperature: 0.7,
-    });
+  switch (provider) {
+    case 'anthropic':
+      // Use Anthropic Claude
+      llm = new ChatAnthropic({
+        modelName: process.env.ANTHROPIC_MODEL_NAME || 'claude-sonnet-4-5',
+        apiKey: process.env.ANTHROPIC_API_KEY,
+        temperature,
+      });
+      break;
+
+    case 'openai':
+    default:
+      // Use OpenAI (default)
+      llm = new ChatOpenAI({
+        modelName: process.env.OPENAI_MODEL_NAME || 'gpt-4.1-mini',
+        apiKey: process.env.OPENAI_API_KEY,
+        temperature,
+      });
+      break;
   }
 
   const structuredLLM = llm.withStructuredOutput(EngineEventPayloadSchema);
