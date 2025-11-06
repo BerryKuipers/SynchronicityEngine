@@ -39,7 +39,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         with:
           script: |
-            const { GoogleGenerativeAI } = require('@google/generative-ai');
+            const { GoogleGenerativeAI } = await import('@google/generative-ai');
 
             // Initialize Gemini
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);

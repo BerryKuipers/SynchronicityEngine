@@ -53,14 +53,18 @@ $Reset = "`e[0m"
 
 Write-Host "${Blue}Fetching review threads for PR #$PrNumber in $Owner/$Repo${Reset}"
 
-# GraphQL query to get all review threads for the PR
+# GraphQL query to get all review threads for the PR (with pagination support)
 $query = @"
-query(`$owner: String!, `$repo: String!, `$prNumber: Int!) {
+query(`$owner: String!, `$repo: String!, `$prNumber: Int!, `$after: String) {
   repository(owner: `$owner, name: `$repo) {
     pullRequest(number: `$prNumber) {
       id
       title
-      reviewThreads(first: 100) {
+      reviewThreads(first: 100, after: `$after) {
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
         nodes {
           id
           isResolved
@@ -82,17 +86,37 @@ query(`$owner: String!, `$repo: String!, `$prNumber: Int!) {
 "@
 
 try {
-    # Execute the query
-    $result = gh api graphql -H "X-Github-Next-Global-ID:1" -f query=$query -F owner=$Owner -F repo=$Repo -F prNumber=$PrNumber | ConvertFrom-Json
+    # Fetch all review threads with pagination
+    $allThreads = @()
+    $after = $null
+    $hasNextPage = $true
 
-    if (-not $result.data.repository.pullRequest) {
-        Write-Host "${Red}❌ Pull Request #$PrNumber not found in $Owner/$Repo${Reset}"
-        exit 1
+    while ($hasNextPage) {
+        # Execute the query with pagination cursor
+        $variables = @{
+            owner = $Owner
+            repo = $Repo
+            prNumber = $PrNumber
+        }
+        if ($after) {
+            $variables.after = $after
+        }
+
+        $result = gh api graphql -H "X-Github-Next-Global-ID:1" -f query=$query -F owner=$Owner -F repo=$Repo -F prNumber=$PrNumber $(if ($after) { "-F after=$after" } else { "" }) | ConvertFrom-Json
+
+        if (-not $result.data.repository.pullRequest) {
+            Write-Host "${Red}❌ Pull Request #$PrNumber not found in $Owner/$Repo${Reset}"
+            exit 1
+        }
+
+        $pr = $result.data.repository.pullRequest
+        $allThreads += $pr.reviewThreads.nodes
+
+        $hasNextPage = $pr.reviewThreads.pageInfo.hasNextPage
+        $after = $pr.reviewThreads.pageInfo.endCursor
     }
 
-    $pr = $result.data.repository.pullRequest
-    $threads = $pr.reviewThreads.nodes
-
+    $threads = $allThreads
     Write-Host "${Blue}Found $($threads.Count) total review threads${Reset}"
 
     # Filter for unresolved threads
@@ -108,12 +132,17 @@ try {
     if ($DryRun) {
         Write-Host "${Yellow}🔍 DRY RUN - Would resolve the following conversations:${Reset}"
         foreach ($thread in $unresolvedThreads) {
+            if ($thread.comments.nodes.Count -eq 0) {
+                Write-Host "${Yellow}  Skipping thread $($thread.id) - no comments${Reset}"
+                continue
+            }
             $comment = $thread.comments.nodes[0]
             if ($comment) {
                 Write-Host "  Thread ID: $($thread.id)"
                 Write-Host "    File: $($comment.path) (line $($comment.line))"
                 Write-Host "    Author: $($comment.author.login)"
-                Write-Host "    Preview: $($comment.body.Substring(0, [Math]::Min(100, $comment.body.Length)))..."
+                $preview = if ($comment.body) { $comment.body.Substring(0, [Math]::Min(100, $comment.body.Length)) } else { "(empty)" }
+                Write-Host "    Preview: $preview..."
                 Write-Host ""
             }
         }
@@ -126,6 +155,11 @@ try {
     $failedCount = 0
 
     foreach ($thread in $unresolvedThreads) {
+        if ($thread.comments.nodes.Count -eq 0) {
+            Write-Host "${Yellow}Skipping thread $($thread.id) - no comments${Reset}"
+            continue
+        }
+
         $comment = $thread.comments.nodes[0]
         $threadId = $thread.id
 
