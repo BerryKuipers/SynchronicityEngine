@@ -1,5 +1,6 @@
 import type { EngineActionResult, EngineSnapshot } from '@synchronicity/engine';
 
+// API Configuration
 const extractEnvApiUrl = (): string | undefined => {
   const value = import.meta.env.VITE_API_URL;
   if (typeof value === 'string' && value.trim().length > 0) {
@@ -9,6 +10,13 @@ const extractEnvApiUrl = (): string | undefined => {
 };
 
 const API_URL = extractEnvApiUrl() ?? 'http://localhost:3001';
+const API_VERSION = import.meta.env.VITE_API_VERSION ?? 'v1';
+
+// API Endpoints
+const ENDPOINTS = {
+  session: (sessionId: string) => `${API_URL}/api/${API_VERSION}/sessions/${sessionId}`,
+  sessionActions: (sessionId: string) => `${API_URL}/api/${API_VERSION}/sessions/${sessionId}/actions`,
+} as const;
 
 const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
@@ -20,12 +28,12 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
 };
 
 export const fetchSnapshot = async (sessionId: string): Promise<EngineSnapshot> => {
-  const response = await fetch(`${API_URL}/api/sessions/${sessionId}`);
+  const response = await fetch(ENDPOINTS.session(sessionId));
   return handleResponse<EngineSnapshot>(response);
 };
 
 export const submitAction = async (sessionId: string, actionId: string): Promise<EngineActionResult> => {
-  const response = await fetch(`${API_URL}/api/sessions/${sessionId}/actions`, {
+  const response = await fetch(ENDPOINTS.sessionActions(sessionId), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ actionId }),
