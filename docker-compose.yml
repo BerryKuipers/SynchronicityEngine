@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: synchronicity-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: synchronicity
+      POSTGRES_PASSWORD: synchronicity_dev_pass
+      POSTGRES_DB: synchronicity_engine
+    ports:
+      - "5436:5432"  # Using 5436 to avoid conflicts with other projects
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synchronicity"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

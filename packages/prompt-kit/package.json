@@ -5,15 +5,27 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" },
-    "./utils": { "import": "./dist/utils/index.js", "types": "./dist/utils/index.d.ts" },
-    "./types": { "import": "./dist/types.js", "types": "./dist/types.d.ts" }
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    }
   },
-  "engines": { "node": ">=20.0.0" },
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@langchain/anthropic": "^1.0.0",
     "@langchain/core": "^1.0.2",
     "@langchain/openai": "^1.0.0",
     "langchain": "^0.0.184",
