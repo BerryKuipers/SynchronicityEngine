@@ -1,0 +1,4 @@
+[submodule ".claude-toolkit"]
+	path = .claude-toolkit
+	url = https://github.com/BerryKuipers/claude-code-toolkit.git
+	ignore = dirty

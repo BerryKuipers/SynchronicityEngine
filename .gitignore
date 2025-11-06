@@ -7,3 +7,23 @@ coverage/
 .env
 npm-debug.log*
 *.tsbuildinfo
+
+# Claude Code Toolkit - Synced Files (don't commit duplicates)
+# These are synced from .claude-toolkit submodule
+.claude/agents/
+.claude/commands/
+.claude/skills/
+.claude/api-skills-source/
+.claude/prompts/
+.claude/reviews/
+
+# Keep project-specific files
+!.claude/settings.json
+!.claude/config.yml
+!.claude/local/
+!.claude/handlers/
+!.claude/hooks/
+!.claude/plugins/
+
+# Runtime state
+.claude/.state/
