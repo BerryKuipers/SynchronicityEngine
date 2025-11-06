@@ -1,4 +1,6 @@
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { LawRegistry } from './LawRegistry.js';
 import { PersonaRegistry } from './PersonaRegistry.js';
 import { BeliefRenderer } from './render/BeliefRenderer.js';
@@ -8,6 +10,8 @@ import { renderGuardrails } from './render/GuardrailsComposer.js';
 import { PromptAssemblyInput, ChatAssembly } from './types.js';
 import { createSha256Hash, truncateForModel } from './utils/index.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const promptsBasePath = path.join(__dirname, '..', '..', '..', 'config', 'prompts');
 const lawRegistry = new LawRegistry(promptsBasePath);
 const personaRegistry = new PersonaRegistry(promptsBasePath);
