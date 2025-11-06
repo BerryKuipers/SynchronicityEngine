@@ -46,7 +46,14 @@ export default async function (fastify: FastifyInstance) {
       const { id } = request.params as Static<typeof IncarnationIdParams>;
       const payload = request.body as Static<typeof UpdateBodyPayload>;
 
-      const updatedBody = await PhysicalBodyRepo.updateByIncarnationId(id, payload);
+      const updatedBody = await PhysicalBodyRepo.updateByIncarnationId(id, {
+        ...payload,
+        health: payload.health?.toString(),
+        energy: payload.energy?.toString(),
+        fatigue: payload.fatigue?.toString(),
+        hunger: payload.hunger?.toString(),
+        mood: payload.mood?.toString(),
+      });
 
       if (!updatedBody) {
         return reply.code(404).send({ error: 'Physical body not found' });

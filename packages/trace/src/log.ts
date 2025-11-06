@@ -1,4 +1,4 @@
-import { LogRecord } from './types'
+import { LogRecord } from './types.js'
 import fs from 'fs'
 import path from 'path'
 

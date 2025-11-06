@@ -19,3 +19,5 @@ export const createDefaultEngine = (): SynchronicityEngine => {
 export { SynchronicityEngine, introductionScene, convergenceScene };
 export * from './types.js';
 export * from './interfaces/Ports.js';
+export type { EngineSnapshotV1 as EngineSnapshot } from '@synchronicity/shared'
+export type EngineActionResult = { applied: boolean; snapshot: import('@synchronicity/shared').EngineSnapshotV1 }

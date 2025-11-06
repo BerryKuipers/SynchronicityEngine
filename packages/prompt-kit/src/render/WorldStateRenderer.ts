@@ -1,5 +1,5 @@
-import { IRenderer } from '../contracts/PromptContracts';
-import { WorldState } from '../types';
+import { IRenderer } from '../contracts/PromptContracts.js';
+import { WorldState } from '../types.js';
 
 export class WorldStateRenderer implements IRenderer<WorldState> {
   public render(input: WorldState): string {

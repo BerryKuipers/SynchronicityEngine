@@ -1,4 +1,4 @@
-import { TraceSpan } from './types'
+import { TraceSpan } from './types.js'
 
 function redact(obj: any, maxLength = 256): any {
   if (obj === null || obj === undefined) {

@@ -1,4 +1,4 @@
-import { LogRecord } from './types'
+import { LogRecord } from './types.js'
 
 // TODO: This is a placeholder implementation. A more robust implementation
 // would use a proper in-memory database or a more efficient indexing strategy.

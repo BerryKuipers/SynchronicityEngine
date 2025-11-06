@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { initialFormState } from './constants';
+import { initialFormState } from './constants.js';
 import './PromptPlaygroundPage.css';
 
 const formFields = [
@@ -117,14 +117,14 @@ export const PromptPlaygroundPage: React.FC = () => {
         </button>
       </div>
 
-      {assemblyResponse && (
+      {Boolean(assemblyResponse) && (
         <div className="responseContainer">
           <h2>Assembly Response</h2>
           <pre>{JSON.stringify(assemblyResponse, null, 2)}</pre>
         </div>
       )}
 
-      {generateResponse && (
+      {Boolean(generateResponse) && (
         <div className="responseContainer">
           <h2>Generate Response</h2>
           <pre>{JSON.stringify(generateResponse, null, 2)}</pre>

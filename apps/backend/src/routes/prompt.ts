@@ -1,12 +1,13 @@
 import { FastifyInstance } from 'fastify';
-import { assembleChat, makeDigest } from '@synchronicity/prompt-kit';
-import * as DirectOpenAiAdapter from '@synchronicity/prompt-kit/adapters/DirectOpenAiAdapter';
-import * as LangChainAdapter from '@synchronicity/prompt-kit/adapters/LangChainAdapter';
-import * as MockDeterministicAdapter from '@synchronicity/prompt-kit/adapters/MockDeterministicAdapter';
+import { assembleChat, DirectOpenAIAdapter, LangChainAdapter, MockDeterministicAdapter } from '@synchronicity/prompt-kit';
+import { makeDigest } from '@synchronicity/prompt-kit/utils';
 import { z } from 'zod';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { PromptAssemblyInput } from '@synchronicity/prompt-kit/types';
+import type { PromptAssemblyInput } from '@synchronicity/prompt-kit/types';
 import { randomUUID } from 'crypto';
+import { ILogSink } from '@synchronicity/trace/log';
+import { ITraceSink } from '@synchronicity/trace/sink';
+import { LogRecord, TraceSpan } from '@synchronicity/trace/types';
 
 const LLM_PROVIDER = process.env.LLM_PROVIDER || 'mock';
 
@@ -50,7 +51,25 @@ const promptAssemblyInputSchema = z.object({
   guardrails: z.array(z.string()).optional(),
 });
 
-export default async function (fastify: FastifyInstance) {
+export default async function (fastify: FastifyInstance, opts: { logSink: ILogSink, traceSink: ITraceSink | null }) {
+  const { logSink, traceSink } = opts;
+
+  const createTraceContext = () => {
+    const traceId = randomUUID();
+    const runId = randomUUID();
+
+    return {
+      traceId,
+      runId,
+      log: (record: Omit<LogRecord, 'ts' | 'traceId' | 'runId'>) => {
+        logSink.write({ ...record, ts: Date.now(), traceId, runId });
+      },
+      trace: (span: Omit<TraceSpan, 'ts' | 'traceId' | 'runId'>) => {
+        traceSink?.append({ ...span, ts: Date.now(), traceId, runId });
+      },
+    };
+  }
+
   fastify.get(
     '/assemble',
     { schema: { querystring: zodToJsonSchema(promptAssemblyInputSchema) } },
@@ -62,13 +81,11 @@ export default async function (fastify: FastifyInstance) {
     }
   );
 
-  fastify.post(
+  fastify.post<{ Body: PromptAssemblyInput }>(
     '/generate',
     { schema: { body: zodToJsonSchema(promptAssemblyInputSchema) } },
     async (request, reply) => {
-      const { createTraceContext } = fastify;
       const { log, trace } = createTraceContext();
-      const { body } = request;
 
       // 1. Assemble phase
       const assembleSpanId = randomUUID();
@@ -76,11 +93,11 @@ export default async function (fastify: FastifyInstance) {
         spanId: assembleSpanId,
         phase: 'assemble',
         inputs: {
-          beliefsDigest: makeDigest(body.beliefs),
-          worldDigest: makeDigest(body.world),
-          blueprintDigest: makeDigest(body.blueprint),
-          personaVersion: body.personaVersion,
-          lawVersion: body.lawVersion,
+          beliefsDigest: makeDigest(request.body.beliefs as unknown),
+          worldDigest: makeDigest(request.body.world as unknown),
+          blueprintDigest: makeDigest(request.body.blueprint as unknown),
+          personaVersion: request.body.personaVersion,
+          lawVersion: request.body.lawVersion,
         },
       });
 
@@ -93,11 +110,11 @@ export default async function (fastify: FastifyInstance) {
         topic: 'assemble.done',
         msg: 'Chat assembly complete',
         data: {
-          beliefsDigest: makeDigest(body.beliefs),
-          worldDigest: makeDigest(body.world),
-          blueprintDigest: makeDigest(body.blueprint),
-          lawVersion: body.lawVersion,
-          personaVersion: body.personaVersion,
+          beliefsDigest: makeDigest(request.body.beliefs as unknown),
+          worldDigest: makeDigest(request.body.world as unknown),
+          blueprintDigest: makeDigest(request.body.blueprint as unknown),
+          lawVersion: request.body.lawVersion,
+          personaVersion: request.body.personaVersion,
         },
       });
 
@@ -128,7 +145,7 @@ export default async function (fastify: FastifyInstance) {
       try {
         switch (LLM_PROVIDER) {
           case 'openai':
-            llmResponse = await DirectOpenAiAdapter.generate(
+            llmResponse = await DirectOpenAIAdapter.generate(
               chatAssembly.system,
               chatAssembly.user
             );
@@ -151,7 +168,7 @@ export default async function (fastify: FastifyInstance) {
           topic: 'adapter.error',
           msg: 'Error calling LLM provider',
           data: {
-            error: error.message,
+            error: String((error as Error)?.message ?? error),
           },
         });
         throw error;

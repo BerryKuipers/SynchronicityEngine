@@ -1,5 +1,5 @@
-import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event';
-import { createSha256Hash } from '../utils';
+import { EngineEventPayload, EngineEventPayloadSchema } from '../schema/event.js';
+import { createSha256Hash } from '../utils/index.js';
 
 function simpleScoring(user: string): {
   actionId: string;

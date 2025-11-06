@@ -1,12 +1,18 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
     "rootDir": "src",
+    "outDir": "dist",
     "jsx": "react-jsx",
     "allowJs": false,
-    "noEmit": false,
+    "noEmit": true,
     "types": ["vite/client"]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["src/**/*.spec.ts", "**/*.test.ts"],
+  "references": [
+    { "path": "../../packages/engine" },
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/trace" }
+  ]
 }
