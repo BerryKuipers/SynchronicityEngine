@@ -70,7 +70,7 @@ server.post(`${API_PREFIX}/sessions/:id/actions`, async (request, reply) => {
 });
 
 const port = Number(process.env.PORT ?? 3001);
-const host = process.env.HOST ?? '0.0.0.0';
+const host = process.env.HOST ?? '127.0.0.1';
 
 const start = async (): Promise<void> => {
   try {
