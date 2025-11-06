@@ -1,8 +1,8 @@
-import type { Action } from '@synchronicity/shared';
+import type { TimelineItem } from '../domain/viewModels.js';
 import React from 'react';
 
 type Props = {
-  actions: Action[];
+  actions: TimelineItem[];
   onSelect: (actionId: string) => Promise<void> | void;
   disabled?: boolean;
 };
@@ -24,8 +24,6 @@ export const ActionList: React.FC<Props> = ({ actions, onSelect, disabled }) => 
             className="action-button"
           >
             <strong>{action.label}</strong>
-            <span>{action.description}</span>
-            <span className="action-cost">Cost: {action.cost}</span>
           </button>
         </li>
       ))}

@@ -1,4 +1,4 @@
-import { EngineEventPayload } from '../schema/event';
+import { EngineEventPayload } from '../schema/event.js';
 
 export interface LLMAdapterOptions {
   seed?: number;

@@ -1,17 +1,21 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import dotenv from 'dotenv';
+dotenv.config({ path: '../../packages/persistence/.env' });
 import {
   createDefaultEngine,
   EngineCommandPort,
   EngineQueryPort,
 } from '@synchronicity/engine';
 import { EngineSnapshotV1 } from '@synchronicity/shared';
-import { createInMemoryWithNdjson, ITraceSink, createNdjsonLogger, ILogSink, LogRecord, TraceSpan } from '@synchronicity/trace';
+import { createInMemoryWithNdjson, ITraceSink } from '@synchronicity/trace/sink';
+import { createNdjsonLogger, ILogSink } from '@synchronicity/trace/log';
+import { LogRecord, TraceSpan } from '@synchronicity/trace/types';
 import { randomUUID } from 'crypto';
 import storage from './routes/storage.js';
 import promptRoutes from './routes/prompt.js';
-import traceRoutes from './routes/trace.js';
 import logRoutes from './routes/logs.js';
+import incarnationRoutes from './routes/incarnation.js';
 import aiRoutes from './routes/ai.js';
 
 const server = Fastify({ logger: true });
@@ -22,37 +26,14 @@ const engine: EngineCommandPort & EngineQueryPort = createDefaultEngine();
 const traceSample = Number(process.env.TRACE_SAMPLE ?? (process.env.NODE_ENV === 'development' ? 1.0 : 0));
 const traceSink: ITraceSink | null = traceSample > 0 ? createInMemoryWithNdjson('var/traces') : null;
 
-if (traceSink) {
-  server.decorate('traceSink', traceSink);
-}
-
 const logSink: ILogSink = createNdjsonLogger('var/logs', 'backend');
-server.decorate('logSink', logSink);
-
-function createTraceContext() {
-  const traceId = randomUUID();
-  const runId = randomUUID();
-
-  return {
-    traceId,
-    runId,
-    log: (record: Omit<LogRecord, 'ts' | 'traceId' | 'runId'>) => {
-      logSink.write({ ...record, ts: Date.now(), traceId, runId });
-    },
-    trace: (span: Omit<TraceSpan, 'ts' | 'traceId' | 'runId'>) => {
-      traceSink?.append({ ...span, ts: Date.now(), traceId, runId });
-    },
-  };
-}
-
-server.decorate('createTraceContext', createTraceContext);
 
 await server.register(cors, { origin: true });
 
 server.register(storage);
-server.register(promptRoutes, { prefix: '/api/v1/prompt' });
-server.register(traceRoutes);
-server.register(logRoutes);
+server.register(promptRoutes, { prefix: '/api/v1/prompt', logSink, traceSink });
+server.register(logRoutes, { logSink });
+server.register(incarnationRoutes, { prefix: '/api/v1' });
 server.register(aiRoutes, { prefix: '/api/v1/ai' });
 
 server.get('/health', () => {

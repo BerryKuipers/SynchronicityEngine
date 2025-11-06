@@ -1,13 +1,13 @@
-import { appendEvent, saveEngineSnapshot, latestSnapshot } from '@synchronicity/persistence'
-import { EngineEvent } from '@synchronicity/engine'
-import { EngineSnapshotV1 } from '@synchronicity/shared'
+import { appendEvent, saveEngineSnapshot, latestSnapshot } from '@synchronicity/persistence';
+import type { EngineSnapshotV1 } from '@synchronicity/shared';
+import type { EngineEvent } from '@synchronicity/engine';
 
 export async function persistEvent(sessionId: string, tick: number, e: EngineEvent) {
 await appendEvent({
 id: crypto.randomUUID(),
 sessionId,
 tick,
-type: e.type,
+type: e.type as string,
 payload: e.payload,
 createdAt: new Date()
 })

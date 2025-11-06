@@ -72,7 +72,7 @@ export class SynchronicityEngine
           sublevels: {},
         },
       ],
-      resonanceScore: ["calm", "vibrant", "chaotic"].indexOf(calculateResonanceLevel(state.resonance)),
+      resonanceScore: Number(calculateResonanceLevel(state.resonance)),
       timelineHints: description.summary.split('.'),
     };
   }

@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { IPromptRegistry } from './contracts/PromptContracts';
+import { IPromptRegistry } from './contracts/PromptContracts.js';
 
 export class PersonaRegistry
   implements IPromptRegistry<null, { version: string }>

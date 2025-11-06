@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "type": "module",
   "main": "dist/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/index.ts",
-    "lint": "eslint 'src/**/*.ts'",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "node dist/index.js"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "@synchronicity/engine": "0.1.0",
     "@synchronicity/prompt-kit": "0.0.1",
     "@synchronicity/shared": "0.1.0",
+    "dotenv": "^16.6.1",
     "fastify": "^4.26.2",
     "json-schema-to-ts": "^3.1.1"
   },

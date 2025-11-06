@@ -67,3 +67,20 @@ export type EngineSnapshotV1 = {
   resonanceScore: number;
   timelineHints: string[];
 };
+
+export type PhysicalBodyDTO = {
+  id: string;
+  incarnationId: string;
+  birthDate: string;
+  ageYearsCached: number;
+  health: string;
+  energy: string;
+  fatigue: string;
+  hunger: string;
+  mood: string;
+  injuries: Record<string, any>;
+  traits: Record<string, any>;
+  geneticSeed: string;
+  createdAt: string;
+  updatedAt: string;
+};

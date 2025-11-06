@@ -1,13 +1,10 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "dist",
     "rootDir": "src",
-    "declaration": true,
-    "composite": true,
-    "types": ["node", "jest"],
-    "isolatedModules": true
+    "outDir": "dist"
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["src/**/*.spec.ts", "**/*.test.ts"],
   "references": [{ "path": "../shared" }]
 }
