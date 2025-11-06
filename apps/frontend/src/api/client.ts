@@ -20,12 +20,12 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
 };
 
 export const fetchSnapshot = async (sessionId: string): Promise<EngineSnapshot> => {
-  const response = await fetch(`${API_URL}/api/sessions/${sessionId}`);
+  const response = await fetch(`${API_URL}/api/v1/sessions/${sessionId}`);
   return handleResponse<EngineSnapshot>(response);
 };
 
 export const submitAction = async (sessionId: string, actionId: string): Promise<EngineActionResult> => {
-  const response = await fetch(`${API_URL}/api/sessions/${sessionId}/actions`, {
+  const response = await fetch(`${API_URL}/api/v1/sessions/${sessionId}/actions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ actionId }),
