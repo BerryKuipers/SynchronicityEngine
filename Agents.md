@@ -14,3 +14,12 @@ This document defines guidelines for building AI agents that embody the layers o
 ## Implementation Notes
 
 Classes should use single quotes for string literals and avoid inline comments except where a `TODO:` is necessary. Use TypeScript’s typing system to enforce contract boundaries between layers. See the files under `src/layers` for examples of basic agent implementations.
+
+## Disk hygiene (hard rule - D: has filled up repeatedly)
+
+- Worktrees live ONLY at `<repo>/.claude/worktrees/<branch-slug>`. Never a sibling dir (`../Repo-fix`, `Repo.worktrees`) and never shared dirs like `D:\berry\Projects\_worktrees`, `_scratch`, `_tmp`, `_codex_worktrees`.
+- Remove the worktree in the same turn its branch lands or is abandoned. Check `git status --porcelain` and unpushed commits first; salvage real work, then plain `git worktree remove` (no `--force`).
+- Scratch/temp output goes in `$env:TEMP` or `<repo>/.claude/tmp` (gitignored), never loose in `D:\berry\Projects`. Delete it before you finish.
+- Never copy or clone a repo per task. Junction `node_modules` to the main checkout; never run `npm ci` inside a worktree.
+- Renders, captures, models, datasets and VM images go in one named folder and are deleted at the end unless the user asked to keep them.
+- At session start and before handoff run `git worktree list`, stop processes you started, and report D: free space. Below 20 GB free: stop and clean up first.
